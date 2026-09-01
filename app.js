@@ -128,102 +128,102 @@
 // GENERIC LOOKUP HELPERS
 // ---------------------------------------------------------------------
 
-function findEvidenceById(id) {
-  for (var i = 0; i < allEvidence.length; i++) {
-    if (allEvidence[i].id === id) return allEvidence[i];
-  }
-  return null;
-}
-
-function findPersonById(id) {
-  for (var i = 0; i < allPeople.length; i++) {
-    if (allPeople[i].id === id) return allPeople[i];
-  }
-  return null;
-}
-
-function findLocationById(id) {
-  for (var i = 0; i < allLocations.length; i++) {
-    if (allLocations[i].id === id) return allLocations[i];
-  }
-  return null;
-}
-
-function evidenceMentionsPerson(ev, person) {
-  if (!ev.personIds) return false;
-  return ev.personIds.indexOf(person.id) !== -1 || ev.personIds.indexOf(person.name) !== -1;
-}
-
-function formatDate(ts) {
-  if (!ts) return "Unknown date";
-  var d = new Date(ts);
-  if (isNaN(d.getTime())) return ts;
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) +
-    " " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-}
-
-function getStatusBadgeClass(status) {
-  var s = (status || "").toLowerCase();
-  if (s === "reviewed") return "badge-reviewed";
-  if (s === "flagged") return "badge-flagged";
-  return "badge-unreviewed";
-}
-
-function getRelevanceBadgeClass(relevance) {
-  var r = (relevance || "").toLowerCase();
-  if (r === "relevant") return "badge-relevant";
-  return "badge-unreviewed";
-}
-
+//function findEvidenceById(id) {
+//  for (var i = 0; i < allEvidence.length; i++) {
+//    if (allEvidence[i].id === id) return allEvidence[i];
+//  }
+//  return null;
+//}
+//
+//function findPersonById(id) {
+//  for (var i = 0; i < allPeople.length; i++) {
+//    if (allPeople[i].id === id) return allPeople[i];
+//  }
+//  return null;
+//}
+//
+//function findLocationById(id) {
+//  for (var i = 0; i < allLocations.length; i++) {
+//    if (allLocations[i].id === id) return allLocations[i];
+//  }
+//  return null;
+//}
+//
+//function evidenceMentionsPerson(ev, person) {
+//  if (!ev.personIds) return false;
+//  return ev.personIds.indexOf(person.id) !== -1 || ev.personIds.indexOf(person.name) !== -1;
+//}
+//
+//function formatDate(ts) {
+//  if (!ts) return "Unknown date";
+//  var d = new Date(ts);
+//  if (isNaN(d.getTime())) return ts;
+//  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) +
+//    " " + d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+//}
+//
+//function getStatusBadgeClass(status) {
+//  var s = (status || "").toLowerCase();
+//  if (s === "reviewed") return "badge-reviewed";
+//  if (s === "flagged") return "badge-flagged";
+//  return "badge-unreviewed";
+//}
+//
+//function getRelevanceBadgeClass(relevance) {
+//  var r = (relevance || "").toLowerCase();
+//  if (r === "relevant") return "badge-relevant";
+//  return "badge-unreviewed";
+//}
+//
 // ---------------------------------------------------------------------
 // NAVIGATION / HASH ROUTING
 // ---------------------------------------------------------------------
-
-function navigateTo(viewName) {
-  window.location.hash = viewName;
-  // handleHashChange() will pick this up via the hashchange listener
-}
-
-function handleHashChange() {
-  var hash = window.location.hash.replace("#", "");
-  var validViews = ["dashboard", "evidence", "people", "timeline", "workspace"];
-  if (validViews.indexOf(hash) === -1) {
-    hash = "dashboard";
-  }
-  currentPage = hash;
-
-  var sections = document.querySelectorAll(".view");
-  for (var i = 0; i < sections.length; i++) {
-    sections[i].classList.remove("active");
-  }
-  document.getElementById("view-" + hash).classList.add("active");
-
-  var navButtons = document.querySelectorAll(".nav-btn");
-  for (var n = 0; n < navButtons.length; n++) {
-    navButtons[n].classList.remove("active");
-    if (navButtons[n].getAttribute("data-view") === hash) {
-      navButtons[n].classList.add("active");
-    }
-  }
-
-  if (hash === "dashboard" && !viewRendered.dashboard) {
-    renderDashboard();
-    viewRendered.dashboard = true;
-  } else if (hash === "evidence" && !viewRendered.evidence) {
-    renderEvidenceList();
-    viewRendered.evidence = true;
-  } else if (hash === "people" && !viewRendered.people) {
-    renderPeople();
-    renderLocations();
-    viewRendered.people = true;
-  } else if (hash === "timeline" && !viewRendered.timeline) {
-    renderTimeline();
-    viewRendered.timeline = true;
-  } else if (hash === "workspace") {
-    // workspace is cheap enough that it always re-renders
-    renderWorkspace();
-  }
-}
+//
+//function navigateTo(viewName) {
+//  window.location.hash = viewName;
+//  // handleHashChange() will pick this up via the hashchange listener
+//}
+//
+//function handleHashChange() {
+//  var hash = window.location.hash.replace("#", "");
+//  var validViews = ["dashboard", "evidence", "people", "timeline", "workspace"];
+//  if (validViews.indexOf(hash) === -1) {
+//    hash = "dashboard";
+//  }
+//  currentPage = hash;
+//
+//  var sections = document.querySelectorAll(".view");
+//  for (var i = 0; i < sections.length; i++) {
+//    sections[i].classList.remove("active");
+//  }
+//  document.getElementById("view-" + hash).classList.add("active");
+//
+//  var navButtons = document.querySelectorAll(".nav-btn");
+//  for (var n = 0; n < navButtons.length; n++) {
+//    navButtons[n].classList.remove("active");
+//    if (navButtons[n].getAttribute("data-view") === hash) {
+//      navButtons[n].classList.add("active");
+//    }
+//  }
+//
+//  if (hash === "dashboard" && !viewRendered.dashboard) {
+//    renderDashboard();
+//    viewRendered.dashboard = true;
+//  } else if (hash === "evidence" && !viewRendered.evidence) {
+//    renderEvidenceList();
+//    viewRendered.evidence = true;
+//  } else if (hash === "people" && !viewRendered.people) {
+//    renderPeople();
+//    renderLocations();
+//    viewRendered.people = true;
+//  } else if (hash === "timeline" && !viewRendered.timeline) {
+//    renderTimeline();
+//    viewRendered.timeline = true;
+//  } else if (hash === "workspace") {
+//    // workspace is cheap enough that it always re-renders
+//    renderWorkspace();
+//  }
+//}
 
 // ---------------------------------------------------------------------
 // DASHBOARD
