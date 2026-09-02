@@ -1,13 +1,16 @@
 import { state } from "./state.js";
+import { renderDashboard } from "./dashboard.js";
+import { populateAllDropdowns, renderEvidenceList, applyStoredBookmarkFlags } from "./evidence.js";
+import { renderTimeline } from "./timeline.js";
 
-export function showLoadingOverlay(msg) {
+ function showLoadingOverlay(msg) {
   var overlay = document.getElementById("loadingOverlay");
   var text = document.getElementById("loadingText");
   if (text) text.textContent = msg;
   if (overlay) overlay.classList.remove("hidden");
 }
 
-export function hideLoadingStep() {
+ function hideLoadingStep() {
   state.loadingStepsRemaining--;
   if (state.loadingStepsRemaining <= 0) {
     var overlay = document.getElementById("loadingOverlay");
@@ -31,8 +34,8 @@ export function loadCorePeopleAndLocations() {
               state.allLocations.push.apply(state.allLocations, locationsJson);
 
               hideLoadingStep();
-              if (typeof window.renderDashboard === 'function') window.renderDashboard();
-              if (typeof window.populateAllDropdowns === 'function') window.populateAllDropdowns();
+              renderDashboard();
+              populateAllDropdowns();
             });
           });
         });
@@ -50,15 +53,14 @@ export function loadEvidenceData() {
       state.allEvidence.length = 0;
       state.allEvidence.push.apply(state.allEvidence, data);
 
-      if (typeof window.applyStoredBookmarkFlags === 'function') window.applyStoredBookmarkFlags();
+      applyStoredBookmarkFlags();
       state.filteredEvidence.length = 0;
       state.filteredEvidence.push.apply(state.filteredEvidence, state.allEvidence);
 
-    
-     if (typeof window.renderDashboard === 'function') window.renderDashboard();
-      if (typeof window.populateAllDropdowns === 'function') window.populateAllDropdowns();
-      if (state.currentPage === "evidence" && typeof window.renderEvidenceList === 'function') {
-        window.renderEvidenceList();
+      renderDashboard();
+      populateAllDropdowns();
+      if (state.currentPage === "evidence") {
+        renderEvidenceList();
       }
     })
     .catch(function (err) {
@@ -76,11 +78,11 @@ export function loadTimelineData() {
       state.allTimeline.length = 0;
       state.allTimeline.push.apply(state.allTimeline, data);
 
-      if (typeof window.renderDashboard === 'function') window.renderDashboard();
-      if (state.currentPage === "timeline" && typeof window.renderTimeline === 'function') {
-        window.renderTimeline();
+      renderDashboard();
+      if (state.currentPage === "timeline") {
+        renderTimeline();
       }
-      if (typeof window.populateAllDropdowns === 'function') window.populateAllDropdowns();
+      populateAllDropdowns();
     })
     .catch(function (err) {
       console.log("timeline load error", err);

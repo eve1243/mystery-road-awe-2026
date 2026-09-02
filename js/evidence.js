@@ -1,4 +1,7 @@
 import {state} from "./state.js";
+import { populateTimelineDropdowns } from "./timeline.js";
+import { populateHypothesisDropdowns } from "./workspace.js";
+import { saveBookmarksToStorage, loadNoteForEvidence, saveNoteForEvidence } from "./storage.js";
 import {findEvidenceById, findPersonById, findLocationById, evidenceMentionsPerson, formatDate, getStatusBadgeClass, getRelevanceBadgeClass} from "./utils.js";
 
 // ---------------------------------------------------------------------
@@ -7,16 +10,11 @@ import {findEvidenceById, findPersonById, findLocationById, evidenceMentionsPers
 
 export function populateAllDropdowns() {
   populateEvidenceDropdowns();
-  if (typeof populateTimelineDropdowns === "function") {
-    window.populateTimelineDropdowns();
-  }
-  
-  if (typeof populateHypothesisDropdowns === "function") {
-    window.populateHypothesisDropdowns();
-  }
+  populateTimelineDropdowns();
+  populateHypothesisDropdowns();
 }
 
-export function populateEvidenceDropdowns() {
+function populateEvidenceDropdowns() {
   var typeSelect = document.getElementById("filterType");
   var personSelect = document.getElementById("filterPerson");
   var locationSelect = document.getElementById("filterLocation");
@@ -43,7 +41,7 @@ export function populateEvidenceDropdowns() {
   }
 }
 
-export function getFilteredEvidence() {
+function getFilteredEvidence() {
   var searchBox = document.getElementById("evidenceSearch");
   var searchTerm = searchBox ? searchBox.value.toLowerCase().trim() : "";
   var typeVal = document.getElementById("filterType").value;
@@ -107,7 +105,7 @@ export function renderEvidenceList() {
 
 
 
-export function renderEvidenceCardHTML(ev) {
+function renderEvidenceCardHTML(ev) {
   var isBookmarked = state.bookmarks.indexOf(ev.id) !== -1;
   var html = '<div class="evidence-card" data-id="' + ev.id + '">';
   html += '<button class="bookmark-btn ' + (isBookmarked ? "active" : "") + '" data-action="bookmark" data-id="' + ev.id + '" aria-label="Toggle bookmark for ' + ev.title + '"><span class="bookmark-icon">' + (isBookmarked ? "★" : "☆") + "</span></button>";
@@ -129,7 +127,7 @@ export function renderEvidenceCardHTML(ev) {
   return html;
 }
 
-export function handleEvidenceListClick(event) {
+function handleEvidenceListClick(event) {
   var target = event.target;
 
   if (target.dataset && target.dataset.action === "bookmark") {
@@ -157,9 +155,7 @@ export function handleBookmarkClick(evidenceId) {
     });
     ev.bookmarked = false;
   }
-  if (typeof saveBookmarksToStorage === "function") {
-    saveBookmarksToStorage();
-  }
+  saveBookmarksToStorage();
   if (state.currentPage === "evidence") renderEvidenceList();
 }
 
@@ -202,7 +198,7 @@ if (document.getElementById("evidenceSearch")) document.getElementById("evidence
   renderEvidenceList();
 }
 
-export function simulateAsyncSearch(term) {
+function simulateAsyncSearch(term) {
   return new Promise(function (resolve) {
     setTimeout(function () {
       resolve(term);
@@ -272,7 +268,7 @@ export function renderEvidenceDetail(ev) {
   html += '<div class="evidence-detail-header">';
   html += "<div><h2>" + ev.title + "</h2>";
   html += '<div class="evidence-meta">' + ev.id + " &middot; " + ev.type + " &middot; " + formatDate(ev.timestamp) + "</div></div>";
-  html += '<button type="button" class="btn btn-secondary btn-small" onclick="closeEvidenceDetail()">Close</button>';
+  html += '<button type="button" class="btn btn-secondary btn-small" data-close-evidence-detail="true">Close</button>';
   html += "</div>";
 
   if (ev.tags.indexOf("critical") !== -1) {
@@ -301,7 +297,7 @@ export function renderEvidenceDetail(ev) {
 
   html += '<div class="detail-field"><strong>Investigator note</strong>';
   html += '<textarea id="evidenceNoteInput" class="note-textarea" rows="3" data-evidence-id="' + ev.id + '" placeholder="Add a private note about this evidence...">' + storedNote + "</textarea>";
-  html += '<button type="button" class="btn btn-primary btn-small" style="margin-top:6px;" onclick="saveCurrentNote()">Save note</button>';
+  html += '<button type="button" class="btn btn-primary btn-small" style="margin-top:6px;" data-save-note="true">Save note</button>';
   html += "</div>";
 
   html += '<div class="detail-field"><strong>Note preview</strong><div id="notePreview">' + storedNote + "</div></div>";
@@ -320,7 +316,7 @@ export function renderEvidenceDetail(ev) {
   });
 }
 
-export function statusOptionHTML(current, value, label) {
+function statusOptionHTML(current, value, label) {
   var currentLower = (current || "").toLowerCase();
   var selected = currentLower === value ? " selected" : "";
   return '<option value="' + value + '"' + selected + ">" + label + "</option>";
@@ -331,7 +327,7 @@ export function saveCurrentNote() {
   if (!textarea) return;
   var evidenceId = textarea.getAttribute("data-evidence-id");
   var text = textarea.value;
-  if (typeof window.saveNoteForEvidence === 'function') window.saveNoteForEvidence(evidenceId, text);
+  saveNoteForEvidence(evidenceId, text);
   var preview = document.getElementById("notePreview");
   if (preview) preview.innerHTML = text;
 }

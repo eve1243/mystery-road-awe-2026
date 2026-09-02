@@ -1,5 +1,7 @@
 // js/people.js
 import { state } from './state.js';
+import { navigateTo } from './router.js';
+import { renderEvidenceList } from './evidence.js';
 import { evidenceMentionsPerson } from './utils.js';
 
 export function switchPeopleTab(tab) {
@@ -24,7 +26,7 @@ export function switchPeopleTab(tab) {
   }
 }
 
-export function countEvidenceForPerson(person) {
+ function countEvidenceForPerson(person) {
   var count = 0;
   for (var i = 0; i < state.allEvidence.length; i++) {
     if (evidenceMentionsPerson(state.allEvidence[i], person)) count++;
@@ -66,13 +68,9 @@ export function renderPeople() {
       var filterPersonSelect = document.getElementById("filterPerson");
       if (filterPersonSelect) filterPersonSelect.value = personId;
 
-      if (typeof window.navigateTo === 'function') {
-        window.navigateTo("evidence");
-      }
+      navigateTo("evidence");
       setTimeout(function () {
-        if (typeof window.renderEvidenceList === 'function') {
-          window.renderEvidenceList();
-        }
+        renderEvidenceList();
       }, 0);
     });
   }

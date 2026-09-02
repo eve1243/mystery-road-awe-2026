@@ -1,84 +1,80 @@
 // js/main.js
 import { loadAllData } from './js/api.js';
 import { navigateTo, handleHashChange } from './js/router.js';
-import { 
-  loadBookmarksFromStorage, 
-  loadNotesFromStorage, 
-  loadNoteAsync, 
-  saveBookmarksToStorage, 
-  saveNoteForEvidence, 
-  loadNoteForEvidence 
-} from './js/storage.js';
+import { loadBookmarksFromStorage, loadNotesFromStorage, loadNoteAsync } from './js/storage.js';
+import {
+  handleSearchInput,
+  renderEvidenceList,
+  clearFilters,
+  handleSortChange,
+  saveCurrentNote,
+  closeEvidenceDetail,
+  openEvidenceDetail
+} from './js/evidence.js';
+import { switchPeopleTab } from './js/people.js';
+import { renderTimeline } from './js/timeline.js';
+import { saveHypothesis } from './js/workspace.js';
 
-import * as dashboardView from './js/dashboard.js';
-import * as evidenceView from './js/evidence.js';
-import * as peopleView from './js/people.js';
-import * as timelineView from './js/timeline.js';
-import * as workspaceView from './js/workspace.js';
-
-// Funktionen am Window-Objekt registrieren, damit HTML-Event-Attribute (z. B. onclick) sie finden
-Object.assign(window, dashboardView);
-Object.assign(window, evidenceView);
-Object.assign(window, peopleView);
-Object.assign(window, timelineView);
-Object.assign(window, workspaceView);
-
-window.navigateTo = navigateTo;
-window.handleHashChange = handleHashChange;
-
-// Storage-Helfer global bereitstellen
-window.saveBookmarksToStorage = saveBookmarksToStorage;
-window.saveNoteForEvidence = saveNoteForEvidence;
-window.loadNoteForEvidence = loadNoteForEvidence;
 
 function setupEventListeners() {
   window.addEventListener("hashchange", handleHashChange);
 
   var navButtons = document.querySelectorAll(".nav-btn");
   for (var i = 0; i < navButtons.length; i++) {
-    (function (btn) {
-      btn.addEventListener("click", function () {
-        var targetView = btn.getAttribute("data-view");
-        console.log("nav clicked:", targetView);
-      });
-    })(navButtons[i]);
+    navButtons[i].addEventListener("click", function () {
+      var targetView = this.getAttribute("data-view");
+      navigateTo(targetView);
+    });
+  }
+
+  var navShortcutButtons = document.querySelectorAll("[data-nav]");
+  for (var j = 0; j < navShortcutButtons.length; j++) {
+    navShortcutButtons[j].addEventListener("click", function () {
+      navigateTo(this.getAttribute("data-nav"));
+    });
   }
 
   var evidenceSearch = document.getElementById("evidenceSearch");
-  if (evidenceSearch) evidenceSearch.addEventListener("input", evidenceView.handleSearchInput);
+  if (evidenceSearch) evidenceSearch.addEventListener("input", handleSearchInput);
 
   var filterType = document.getElementById("filterType");
-  if (filterType) filterType.addEventListener("change", evidenceView.renderEvidenceList);
+  if (filterType) filterType.addEventListener("change", renderEvidenceList);
 
   var filterPerson = document.getElementById("filterPerson");
-  if (filterPerson) filterPerson.addEventListener("change", evidenceView.renderEvidenceList);
+  if (filterPerson) filterPerson.addEventListener("change", renderEvidenceList);
 
   var filterLocation = document.getElementById("filterLocation");
-  if (filterLocation) filterLocation.addEventListener("change", evidenceView.renderEvidenceList);
+  if (filterLocation) filterLocation.addEventListener("change", renderEvidenceList);
 
   var filterStatus = document.getElementById("filterStatus");
-  if (filterStatus) {
-    filterStatus.addEventListener("change", evidenceView.renderEvidenceList);
-    filterStatus.setAttribute("onchange", "renderEvidenceList()");
-  }
+  if (filterStatus) filterStatus.addEventListener("change", renderEvidenceList);
 
   var filterRelevance = document.getElementById("filterRelevance");
-  if (filterRelevance) filterRelevance.addEventListener("change", evidenceView.renderEvidenceList);
+  if (filterRelevance) filterRelevance.addEventListener("change", renderEvidenceList);
 
   var clearFiltersBtn = document.getElementById("clearFiltersBtn");
-  if (clearFiltersBtn) clearFiltersBtn.addEventListener("click", evidenceView.clearFilters);
+  if (clearFiltersBtn) clearFiltersBtn.addEventListener("click", clearFilters);
+
+  var sortEvidence = document.getElementById("sortEvidence");
+  if (sortEvidence) sortEvidence.addEventListener("change", handleSortChange);
+
+  var peopleTabBtn = document.getElementById("tabPeopleBtn");
+  if (peopleTabBtn) peopleTabBtn.addEventListener("click", function () { switchPeopleTab("people"); });
+
+  var locationsTabBtn = document.getElementById("tabLocationsBtn");
+  if (locationsTabBtn) locationsTabBtn.addEventListener("click", function () { switchPeopleTab("locations"); });
 
   var timelineOrder = document.getElementById("timelineOrder");
-  if (timelineOrder) timelineOrder.addEventListener("change", timelineView.renderTimeline);
+  if (timelineOrder) timelineOrder.addEventListener("change", renderTimeline);
 
   var timelinePersonFilter = document.getElementById("timelinePersonFilter");
-  if (timelinePersonFilter) timelinePersonFilter.addEventListener("change", timelineView.renderTimeline);
+  if (timelinePersonFilter) timelinePersonFilter.addEventListener("change", renderTimeline);
 
   var timelineLocationFilter = document.getElementById("timelineLocationFilter");
-  if (timelineLocationFilter) timelineLocationFilter.addEventListener("change", timelineView.renderTimeline);
+  if (timelineLocationFilter) timelineLocationFilter.addEventListener("change", renderTimeline);
 
   var timelineTypeFilter = document.getElementById("timelineTypeFilter");
-  if (timelineTypeFilter) timelineTypeFilter.addEventListener("change", timelineView.renderTimeline);
+  if (timelineTypeFilter) timelineTypeFilter.addEventListener("change", renderTimeline);
 
   var hypConfidence = document.getElementById("hypConfidence");
   if (hypConfidence) {
@@ -87,6 +83,36 @@ function setupEventListeners() {
       if (valDisplay) valDisplay.textContent = e.target.value;
     });
   }
+
+  var saveHypothesisBtn = document.getElementById("saveHypothesisBtn");
+  if (saveHypothesisBtn) saveHypothesisBtn.addEventListener("click", saveHypothesis);
+
+  document.addEventListener("click", function (event) {
+    var closeButton = event.target.closest(".modal-close-btn");
+    if (closeButton) {
+      var modal = document.getElementById("quickViewModal");
+      if (modal) modal.innerHTML = "";
+    }
+
+    var openEvidenceButton = event.target.closest("[data-open-full]");
+    if (openEvidenceButton) {
+      var evidenceId = openEvidenceButton.getAttribute("data-open-full");
+      navigateTo("evidence");
+      setTimeout(function () {
+        openEvidenceDetail(evidenceId);
+      }, 0);
+    }
+
+    var closeEvidenceDetailBtn = event.target.closest("[data-close-evidence-detail]");
+    if (closeEvidenceDetailBtn) {
+      closeEvidenceDetail();
+    }
+
+    var saveNoteBtn = event.target.closest("[data-save-note]");
+    if (saveNoteBtn) {
+      saveCurrentNote();
+    }
+  });
 }
 
 function initApp() {
@@ -103,4 +129,3 @@ function initApp() {
 }
 
 window.addEventListener("DOMContentLoaded", initApp);
-window.addEventListener("hashchange", handleHashChange);

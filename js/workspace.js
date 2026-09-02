@@ -1,5 +1,7 @@
 // js/workspace.js
 import { state, STORAGE_KEY_HYPOTHESIS } from './state.js';
+import { navigateTo } from './router.js';
+import { openEvidenceDetail } from './evidence.js';
 
 export function renderWorkspace() {
   renderBookmarksList();
@@ -8,7 +10,7 @@ export function renderWorkspace() {
   loadHypothesisFromStorage();
 }
 
-export function renderBookmarksList() {
+function renderBookmarksList() {
   var container = document.getElementById("bookmarksList");
   if (!container) return;
 
@@ -32,16 +34,16 @@ export function renderBookmarksList() {
   var openButtons = container.querySelectorAll("[data-open-evidence]");
   for (var b = 0; b < openButtons.length; b++) {
     openButtons[b].addEventListener("click", function (e) {
-      if (typeof window.navigateTo === 'function') window.navigateTo("evidence");
+      navigateTo("evidence");
       var id = e.target.getAttribute("data-open-evidence");
       setTimeout(function () {
-        if (typeof window.openEvidenceDetail === 'function') window.openEvidenceDetail(id);
+        openEvidenceDetail(id);
       }, 0);
     });
   }
 }
 
-export function renderNotesList() {
+function renderNotesList() {
   var container = document.getElementById("notesList");
   if (!container) return;
 
@@ -120,7 +122,7 @@ export function saveHypothesis() {
   }
 }
 
-export function getSelectedOptions(selectEl) {
+function getSelectedOptions(selectEl) {
   var result = [];
   for (var i = 0; i < selectEl.options.length; i++) {
     if (selectEl.options[i].selected) result.push(selectEl.options[i].value);

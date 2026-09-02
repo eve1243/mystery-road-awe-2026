@@ -1,5 +1,7 @@
 // js/timeline.js
 import { state } from './state.js';
+import { navigateTo } from './router.js';
+import { openEvidenceDetail } from './evidence.js';
 import { formatDate, findLocationById, findEvidenceById } from './utils.js';
 
 export function populateTimelineDropdowns() {
@@ -91,7 +93,7 @@ export function renderTimeline() {
   }
 }
 
-export function certaintyBadgeClass(certainty) {
+ function certaintyBadgeClass(certainty) {
   if (certainty === "confirmed") return "reviewed";
   if (certainty === "contradictory") return "critical";
   if (certainty === "reported") return "flagged";
@@ -99,7 +101,7 @@ export function certaintyBadgeClass(certainty) {
 }
 
 // Quick-view modal
-export function openEvidenceModal(evidenceId) {
+ function openEvidenceModal(evidenceId) {
   var ev = findEvidenceById(evidenceId);
   if (!ev) return;
 
@@ -128,11 +130,9 @@ export function openEvidenceModal(evidenceId) {
     }
     if (e.target.getAttribute && e.target.getAttribute("data-open-full")) {
       modal.innerHTML = "";
-      if (typeof window.navigateTo === 'function') window.navigateTo("evidence");
+      navigateTo("evidence");
       setTimeout(function () {
-        if (typeof window.openEvidenceDetail === 'function') {
-          window.openEvidenceDetail(e.target.getAttribute("data-open-full"));
-        }
+        openEvidenceDetail(e.target.getAttribute("data-open-full"));
       }, 0);
     }
   });

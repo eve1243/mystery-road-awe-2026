@@ -1,9 +1,12 @@
-import {state} from "./state.js";
-
+import { state } from "./state.js";
+import { renderDashboard } from "./dashboard.js";
+import { renderEvidenceList } from "./evidence.js";
+import { renderPeople, renderLocations } from "./people.js";
+import { renderTimeline } from "./timeline.js";
+import { renderWorkspace } from "./workspace.js";
 
 export function navigateTo(viewName) {
   window.location.hash = viewName;
-  // handleHashChange() will pick this up via the hashchange listener
 }
 
 export function handleHashChange() {
@@ -32,22 +35,20 @@ export function handleHashChange() {
     }
   }
 
-
   if (hash === "dashboard" && !state.viewRendered.dashboard) {
-    if (typeof window.renderDashboard === 'function') window.renderDashboard();
+    renderDashboard();
     state.viewRendered.dashboard = true;
   } else if (hash === "evidence" && !state.viewRendered.evidence) {
-    if (typeof window.renderEvidenceList === 'function') window.renderEvidenceList();
+    renderEvidenceList();
     state.viewRendered.evidence = true;
   } else if (hash === "people" && !state.viewRendered.people) {
-    if (typeof window.renderPeople === 'function') window.renderPeople();
-    if (typeof window.renderLocations === 'function') window.renderLocations();
+    renderPeople();
+    renderLocations();
     state.viewRendered.people = true;
   } else if (hash === "timeline" && !state.viewRendered.timeline) {
-    if (typeof window.renderTimeline === 'function') window.renderTimeline();
+    renderTimeline();
     state.viewRendered.timeline = true;
   } else if (hash === "workspace") {
-    // workspace is cheap enough that it always re-renders
-    if (typeof window.renderWorkspace === 'function') window.renderWorkspace();
+    renderWorkspace();
   }
 }
