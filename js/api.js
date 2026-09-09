@@ -45,7 +45,7 @@ export function loadCorePeopleAndLocations() {
 }
 
 export function loadEvidenceData() {
-  fetch("data/evidence.json")
+  return fetch("data/evidence.json")
     .then(function (res) {
       return res.json();
     })
@@ -56,6 +56,7 @@ export function loadEvidenceData() {
       applyStoredBookmarkFlags();
       state.filteredEvidence.length = 0;
       state.filteredEvidence.push.apply(state.filteredEvidence, state.allEvidence);
+      state.evidenceViewLoading = false;
 
       renderDashboard();
       populateAllDropdowns();
@@ -64,6 +65,7 @@ export function loadEvidenceData() {
       }
     })
     .catch(function (err) {
+      state.evidenceViewLoading = false;
       console.error("Failed to load evidence.json", err);
       alert("Evidence could not be loaded. Some views may be incomplete.");
     });
@@ -96,8 +98,7 @@ export function loadAllData() {
   showLoadingOverlay("Loading case file…");
   state.loadingStepsRemaining = 2;
   return loadCorePeopleAndLocations().then(function () {
-    loadEvidenceData();
-    loadTimelineData();
+    return Promise.all([loadEvidenceData(), loadTimelineData()]);
   });
 }
 

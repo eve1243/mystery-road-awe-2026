@@ -80,6 +80,26 @@ Explain — in your own words — the difference between a *reference* and a *co
       JavaScript, and how that distinction explains what you observed.
 In JavaScript kopiert man normalerweise ein Objekt nicht, wenn man es aus einer anderen Variable zuweist. Beide Variablen zeigen da auf das gleiche Object. Heißt es gibt keine "echten" kopien.
 
+## Demo 3
+
+### Asynchroner Fehler: Evidence bleibt im Ladezustand
+
+#### Reproduktion
+
+1. Die Anwendung über einen lokalen HTTP-Server starten.
+2. Die Seite laden und zur Evidence-Ansicht wechseln.
+3. Obwohl `data/evidence.json` erfolgreich geladen wird, bleibt die Evidence-Liste leer und der Ladeindikator sichtbar.
+
+#### Ursache und Fix
+
+`state.evidenceViewLoading` blieb nach dem Laden von `evidence.json` auf `true`. Deshalb beendete sich `renderEvidenceList()` weiterhin im Lade-Block. Zusätzlich wartete `loadAllData()` nicht auf den Evidence-Promise.
+
+`loadEvidenceData()` gibt jetzt den Fetch-Promise zurück, setzt den Ladezustand nach Erfolg oder Fehler auf `false`, und `loadAllData()` wartet mit `Promise.all()` auf Evidence- und Timeline-Daten.
+
+#### Antwort auf die Frage
+
+Der Fehler passierte nach dem Start des asynchronen `fetch()`-Vorgangs: Die Daten wurden erfolgreich geladen, aber der Status blieb fälschlicherweise auf „loading“. Dadurch wurde der fertige Zustand nicht angezeigt.
+
 - [ ] Walk through the exact user actions and system state that trigger the bug. Could you have
       found it by reading the code top-to-bottom without running it? Why or why not?
 Webseite öffen, dann auf evidence gehen, dort eine Evidence öffnen, im Dropdown den review status auf reviewed ändern. Dann zum Dashboard wechseln, bevor ist der review Fortschritt gleich, nachdem es nach dem verändern, von der Evidence, das Dashboard immer new rendert, wird der vorschritt richtig angezeigt. Ne ich hätts nicht gemerkt, ohne es auf der webseite zu sehen.
