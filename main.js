@@ -19,96 +19,96 @@ import { saveHypothesis } from './js/workspace.js';
 function setupEventListeners() {
   window.addEventListener("hashchange", handleHashChange);
 
-  var navButtons = document.querySelectorAll(".nav-btn");
-  for (var i = 0; i < navButtons.length; i++) {
+  const navButtons = document.querySelectorAll(".nav-btn");
+  for (let i = 0; i < navButtons.length; i++) {
     navButtons[i].addEventListener("click", function () {
-      var targetView = this.getAttribute("data-view");
+      const targetView = this.getAttribute("data-view");
       navigateTo(targetView);
     });
   }
 
-  var navShortcutButtons = document.querySelectorAll("[data-nav]");
-  for (var j = 0; j < navShortcutButtons.length; j++) {
+  const navShortcutButtons = document.querySelectorAll("[data-nav]");
+  for (let j = 0; j < navShortcutButtons.length; j++) {
     navShortcutButtons[j].addEventListener("click", function () {
       navigateTo(this.getAttribute("data-nav"));
     });
   }
 
-  var evidenceSearch = document.getElementById("evidenceSearch");
+  const evidenceSearch = document.getElementById("evidenceSearch");
   if (evidenceSearch) evidenceSearch.addEventListener("input", handleSearchInput);
 
-  var filterType = document.getElementById("filterType");
+  const filterType = document.getElementById("filterType");
   if (filterType) filterType.addEventListener("change", renderEvidenceList);
 
-  var filterPerson = document.getElementById("filterPerson");
+  const filterPerson = document.getElementById("filterPerson");
   if (filterPerson) filterPerson.addEventListener("change", renderEvidenceList);
 
-  var filterLocation = document.getElementById("filterLocation");
+  const filterLocation = document.getElementById("filterLocation");
   if (filterLocation) filterLocation.addEventListener("change", renderEvidenceList);
 
-  var filterStatus = document.getElementById("filterStatus");
+  const filterStatus = document.getElementById("filterStatus");
   if (filterStatus) filterStatus.addEventListener("change", renderEvidenceList);
 
-  var filterRelevance = document.getElementById("filterRelevance");
+  const filterRelevance = document.getElementById("filterRelevance");
   if (filterRelevance) filterRelevance.addEventListener("change", renderEvidenceList);
 
-  var clearFiltersBtn = document.getElementById("clearFiltersBtn");
+  const clearFiltersBtn = document.getElementById("clearFiltersBtn");
   if (clearFiltersBtn) clearFiltersBtn.addEventListener("click", clearFilters);
 
-  var sortEvidence = document.getElementById("sortEvidence");
+  const sortEvidence = document.getElementById("sortEvidence");
   if (sortEvidence) sortEvidence.addEventListener("change", handleSortChange);
 
-  var peopleTabBtn = document.getElementById("tabPeopleBtn");
+  const peopleTabBtn = document.getElementById("tabPeopleBtn");
   if (peopleTabBtn) peopleTabBtn.addEventListener("click", function () { switchPeopleTab("people"); });
 
-  var locationsTabBtn = document.getElementById("tabLocationsBtn");
+  const locationsTabBtn = document.getElementById("tabLocationsBtn");
   if (locationsTabBtn) locationsTabBtn.addEventListener("click", function () { switchPeopleTab("locations"); });
 
-  var timelineOrder = document.getElementById("timelineOrder");
+  const timelineOrder = document.getElementById("timelineOrder");
   if (timelineOrder) timelineOrder.addEventListener("change", renderTimeline);
 
-  var timelinePersonFilter = document.getElementById("timelinePersonFilter");
+  const timelinePersonFilter = document.getElementById("timelinePersonFilter");
   if (timelinePersonFilter) timelinePersonFilter.addEventListener("change", renderTimeline);
 
-  var timelineLocationFilter = document.getElementById("timelineLocationFilter");
+  const timelineLocationFilter = document.getElementById("timelineLocationFilter");
   if (timelineLocationFilter) timelineLocationFilter.addEventListener("change", renderTimeline);
 
-  var timelineTypeFilter = document.getElementById("timelineTypeFilter");
+  const timelineTypeFilter = document.getElementById("timelineTypeFilter");
   if (timelineTypeFilter) timelineTypeFilter.addEventListener("change", renderTimeline);
 
-  var hypConfidence = document.getElementById("hypConfidence");
+  const hypConfidence = document.getElementById("hypConfidence");
   if (hypConfidence) {
     hypConfidence.addEventListener("input", function (e) {
-      var valDisplay = document.getElementById("hypConfidenceValue");
+      const valDisplay = document.getElementById("hypConfidenceValue");
       if (valDisplay) valDisplay.textContent = e.target.value;
     });
   }
 
-  var saveHypothesisBtn = document.getElementById("saveHypothesisBtn");
+  const saveHypothesisBtn = document.getElementById("saveHypothesisBtn");
   if (saveHypothesisBtn) saveHypothesisBtn.addEventListener("click", saveHypothesis);
 
   document.addEventListener("click", function (event) {
-    var closeButton = event.target.closest(".modal-close-btn");
+    const closeButton = event.target.closest(".modal-close-btn");
     if (closeButton) {
-      var modal = document.getElementById("quickViewModal");
+      const modal = document.getElementById("quickViewModal");
       if (modal) modal.innerHTML = "";
     }
 
-    var openEvidenceButton = event.target.closest("[data-open-full]");
+    const openEvidenceButton = event.target.closest("[data-open-full]");
     if (openEvidenceButton) {
-      var evidenceId = openEvidenceButton.getAttribute("data-open-full");
+      const evidenceId = openEvidenceButton.getAttribute("data-open-full");
       navigateTo("evidence");
       setTimeout(function () {
         openEvidenceDetail(evidenceId);
       }, 0);
     }
 
-    var closeEvidenceDetailBtn = event.target.closest("[data-close-evidence-detail]");
+    const closeEvidenceDetailBtn = event.target.closest("[data-close-evidence-detail]");
     if (closeEvidenceDetailBtn) {
       closeEvidenceDetail();
     }
 
-    var saveNoteBtn = event.target.closest("[data-save-note]");
+    const saveNoteBtn = event.target.closest("[data-save-note]");
     if (saveNoteBtn) {
       saveCurrentNote();
     }

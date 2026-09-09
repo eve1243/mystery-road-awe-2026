@@ -4,8 +4,8 @@ import { populateAllDropdowns, renderEvidenceList, applyStoredBookmarkFlags } fr
 import { renderTimeline } from "./timeline.js";
 
  function showLoadingOverlay(msg) {
-  var overlay = document.getElementById("loadingOverlay");
-  var text = document.getElementById("loadingText");
+  const overlay = document.getElementById("loadingOverlay");
+  const text = document.getElementById("loadingText");
   if (text) text.textContent = msg;
   if (overlay) overlay.classList.remove("hidden");
 }
@@ -13,7 +13,7 @@ import { renderTimeline } from "./timeline.js";
  function hideLoadingStep() {
   state.loadingStepsRemaining--;
   if (state.loadingStepsRemaining <= 0) {
-    var overlay = document.getElementById("loadingOverlay");
+    const overlay = document.getElementById("loadingOverlay");
     if (overlay) overlay.classList.add("hidden");
   }
 }

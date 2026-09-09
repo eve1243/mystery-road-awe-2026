@@ -201,3 +201,52 @@ Fall-, Personen- und Standortdaten. Danach werden Evidence und Timeline geladen.
 Die Reihenfolge ist wichtig, weil Renderer und Dropdowns auf den geladenen State
 zugreifen. Würde eine Ansicht zu früh rendern, wären dort vorübergehend leere
 Listen oder fehlende Auswahloptionen zu sehen.
+
+---
+
+## Demo 8
+
+### `var`, `let` und `const`
+
+Die aktiven `var`-Deklarationen in `main.js` und den Modulen unter `js/` wurden
+durch `let` oder `const` ersetzt. `const` wird für Bindungen verwendet, die nicht
+neu zugewiesen werden. `let` bleibt bei Schleifenzählern und Werten, die im
+Ablauf neu zugewiesen werden. Beide sind nur im jeweiligen Block sichtbar und
+können dadurch nicht versehentlich außerhalb dieses Blocks verwendet werden.
+Die enthaltenen Objekte und Arrays dürfen auch bei `const` weiterhin mutiert
+werden; nur die Variable selbst darf nicht auf ein anderes Objekt zeigen.
+
+Vorher konnte `var` wegen seiner Funktions- statt Block-Sichtbarkeit leichter zu
+Namenskonflikten führen. In einer Schleife konnte eine Variable dadurch auch in
+einem größeren Gültigkeitsbereich sichtbar sein als beabsichtigt. `let` ist
+block-sichtbar und verhindert diese Art von versehentlicher Wiederverwendung.
+Ein vergessenes Deklarationswort erzeugt in einem ES-Modul wegen des strikten
+Modus außerdem einen `ReferenceError`, statt eine globale Variable anzulegen.
+
+### Weitere Code-Smells
+
+1. Viele Ansichten bauen große HTML-Strings direkt mit String-Verkettung auf.
+	Das erschwert Änderungen und kann bei nicht bereinigten Benutzereingaben zu
+	unsicherem HTML führen.
+2. Die Datenladung war zunächst über mehrere verschachtelte `.then()`-Aufrufe
+	verteilt und schwer zu verfolgen. Das wurde als eigener asynchroner Fehler in
+	Demo 3 untersucht.
+
+### Antworten auf die Fragen
+
+`var` ist funktions-sichtbar und kann erneut deklariert werden. `let` ist
+block-sichtbar und darf innerhalb seines Gültigkeitsbereichs neu zugewiesen
+werden. `const` ist ebenfalls block-sichtbar, darf aber nicht neu zugewiesen
+werden. Deshalb ist `const` für eine unveränderte DOM-Referenz sinnvoll, während
+`let` für einen Schleifenzähler passt.
+
+Ein versehentliches globales Objekt entsteht bei einem klassischen Script, wenn
+man eine Zuweisung ohne `var`, `let` oder `const` schreibt. In einem ES-Modul ist
+der Code automatisch strict mode; dieselbe Zuweisung führt dort zu einem
+`ReferenceError`. Das macht den Fehler früh sichtbar.
+
+Ein Beispiel für lohnendes Aufräumen ist die wiederholte Verwendung von `var` in
+den Schleifen. Die Anwendung kann damit funktionieren, aber die größere
+Sichtbarkeit erhöht das Risiko, dass eine Schleifenvariable an einer anderen
+Stelle unbeabsichtigt verwendet oder überschrieben wird. Die Block-Sichtbarkeit
+von `let` macht den Code leichter zu prüfen.
