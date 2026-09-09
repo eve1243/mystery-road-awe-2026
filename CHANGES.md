@@ -48,3 +48,39 @@ Named Exports haben einen bestimmten Namen und Module können mehrere haben. Def
 
 **Antwort:**  
 Weil Skripte mit `type="module"` brauchen eine HTTP-Adresse, damit der Browser die importierten Dateien laden darf. Für `fetch()` ist es derselbe Grund, weil die Browser-CORS-Regeln verhindern den Zugriff von lokalen Dateien auf weitere Ressourcen.
+
+---
+
+## Demo 2
+
+### Mutation eines Evidence-Objekts ohne Aktualisierung des Dashboards
+
+#### Reproduktion
+
+1. Die Anwendung über einen lokalen HTTP-Server starten.
+2. Eine Evidence öffnen und im Detailbereich den Review status auf `Reviewed`
+	ändern.
+3. Zum Dashboard wechseln.
+4. Vor dem Fix blieb der Wert bei `Reviewed` und der Review-Fortschritt zeigte
+	weiterhin den alten Stand.
+
+#### Ursache und Fix
+
+Der Status wurde direkt am geladenen Evidence-Objekt verändert:
+`ev.status = e.target.value`. Das Objekt im State war dadurch bereits geändert,
+aber das Dashboard wurde danach nicht neu gerendert. Die Oberfläche zeigte daher
+eine veraltete Darstellung des mutierten State.
+
+Nach der Mutation wird jetzt `renderDashboard()` aufgerufen. Dadurch werden die
+Anzahl der geprüften Evidence und der Review-Fortschritt sofort neu berechnet.
+
+#### Antworten auf die Fragen
+
+Explain — in your own words — the difference between a *reference* and a *copy* in
+      JavaScript, and how that distinction explains what you observed.
+In JavaScript kopiert man normalerweise ein Objekt nicht, wenn man es aus einer anderen Variable zuweist. Beide Variablen zeigen da auf das gleiche Object. Heißt es gibt keine "echten" kopien.
+
+- [ ] Walk through the exact user actions and system state that trigger the bug. Could you have
+      found it by reading the code top-to-bottom without running it? Why or why not?
+Webseite öffen, dann auf evidence gehen, dort eine Evidence öffnen, im Dropdown den review status auf reviewed ändern. Dann zum Dashboard wechseln, bevor ist der review Fortschritt gleich, nachdem es nach dem verändern, von der Evidence, das Dashboard immer new rendert, wird der vorschritt richtig angezeigt. Ne ich hätts nicht gemerkt, ohne es auf der webseite zu sehen.
+

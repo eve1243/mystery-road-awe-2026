@@ -1,4 +1,5 @@
 import {state} from "./state.js";
+import { renderDashboard } from "./dashboard.js";
 import { populateTimelineDropdowns } from "./timeline.js";
 import { populateHypothesisDropdowns } from "./workspace.js";
 import { saveBookmarksToStorage, loadNoteForEvidence, saveNoteForEvidence } from "./storage.js";
@@ -307,11 +308,13 @@ export function renderEvidenceDetail(ev) {
   document.getElementById("detailStatusSelect").addEventListener("change", function (e) {
     ev.status = e.target.value; // direct mutation of the loaded evidence object
     renderEvidenceDetail(ev);
+    renderDashboard();
     if (state.viewRendered.evidence) renderEvidenceList();
   });
   document.getElementById("detailRelevanceSelect").addEventListener("change", function (e) {
     ev.relevance = e.target.value;
     renderEvidenceDetail(ev);
+    renderDashboard();
     if (state.viewRendered.evidence) renderEvidenceList();
   });
 }
