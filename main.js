@@ -78,9 +78,9 @@ function setupEventListeners() {
 
   const hypConfidence = document.getElementById("hypConfidence");
   if (hypConfidence) {
-    hypConfidence.addEventListener("input", function (e) {
+    hypConfidence.addEventListener("input", (e) => {
       const valDisplay = document.getElementById("hypConfidenceValue");
-      if (valDisplay) valDisplay.textContent = e.target.value;
+      if (valDisplay) valDisplay.textContent = e.currentTarget.value;
     });
   }
 

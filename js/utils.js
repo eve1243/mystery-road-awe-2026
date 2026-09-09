@@ -1,18 +1,18 @@
 import {state} from "./state.js";
 
-export function findEvidenceById(id) {
+export const findEvidenceById = (id) => {
   for (let i = 0; i < state.allEvidence.length; i++) {
     if (state.allEvidence[i].id === id) return state.allEvidence[i];
   }
   return null;
-}
+};
 
-export function findPersonById(id) {
+export const findPersonById = (id) => {
   for (let i = 0; i < state.allPeople.length; i++) {
     if (state.allPeople[i].id === id) return state.allPeople[i];
   }
   return null;
-}
+};
 
 export function findLocationById(id) {
   for (let i = 0; i < state.allLocations.length; i++) {

@@ -23,7 +23,7 @@
 > What is the difference between a classic `<script>` and a `<script type="module">`? Name at least two behavioral differences that are relevant to this app.
 
 **Antwort:**  
-Beim klassischen Script landet alles, was man schreibt, global und man kann es von überall initialisieren und benutzen. Bei `script type="module"` ist alles in der eigenen Datei privat, erst wenn man sie exportiert, können andere Dateien sie lesen. Die Module laufen auch asynchron ab.
+Bei einem normalen Script sind viele Variablen global. Das ist praktisch, aber sie können sich auch leichter überschreiben. Bei einem Modul bleibt der Code zuerst in seiner Datei. Andere Dateien brauchen dafür export und import. Module laufen außerdem automatisch im strict mode.
 
 ---
 
@@ -31,7 +31,7 @@ Beim klassischen Script landet alles, was man schreibt, global und man kann es v
 > Before your refactor, `allEvidence` was a global `var`, readable and writable from anywhere in `app.js`. After splitting into modules, what has to happen for a different module to read or change that value? What error do you get if you forget, and why is that error actually useful?
 
 **Antwort:**  
-For another Module to be able to read `allEvidence` it had to be exported in state and then imported in the other modules that needed it.
+Damit ein anderes Modul allEvidence verwenden kann, muss ich die Variable exportieren und dort importieren. Wenn der Import fehlt, kommt ein ReferenceError. Das ist hilfreich. So sehe ich schnell, dass etwas fehlt.
 
 ---
 
@@ -39,7 +39,7 @@ For another Module to be able to read `allEvidence` it had to be exported in sta
 > What's the difference between a named export and a default export? Point to one place in your refactor where you chose one over the other, and explain why.
 
 **Antwort:**  
-Named Exports haben einen bestimmten Namen und Module können mehrere haben. Default Exports ist der Main-Export von einem Modul und es kann nur eines haben. Das Modul, das importiert, kann dann den Namen des Default Exports selber aussuchen. Ich benutze keine Default Exports.
+Ein Named Export hat einen festen Namen. Ein Modul kann mehrere davon haben. Einen Default Export gibt es pro Modul nur einmal. Beim Import kann man ihn umbenennen. Ich habe Named Exports verwendet. Zum Beispiel bei loadAllData in api.js. So bleiben die Namen eindeutig.
 
 ---
 
@@ -47,7 +47,7 @@ Named Exports haben einen bestimmten Namen und Module können mehrere haben. Def
 > Why won't `type="module"` scripts run at all if you open `index.html` directly from disk (`file://...`) instead of through a local HTTP server? (You already need a server for `fetch()` — is this the same reason, a different one, or both?)
 
 **Antwort:**  
-Weil Skripte mit `type="module"` brauchen eine HTTP-Adresse, damit der Browser die importierten Dateien laden darf. Für `fetch()` ist es derselbe Grund, weil die Browser-CORS-Regeln verhindern den Zugriff von lokalen Dateien auf weitere Ressourcen.
+Die App braucht einen Server. Der Browser lädt Module von file nicht normal. Auch fetch auf die JSON-Dateien funktioniert dann wegen den Sicherheitsregeln nicht. Deshalb starte ich die App über einen HTTP-Server.
 
 ---
 
@@ -76,15 +76,15 @@ Anzahl der geprüften Evidence und der Review-Fortschritt sofort neu berechnet.
 
 #### Antworten auf die Fragen
 
-Explain — in your own words — the difference between a *reference* and a *copy* in
-      JavaScript, and how that distinction explains what you observed.
-In JavaScript kopiert man normalerweise ein Objekt nicht, wenn man es aus einer anderen Variable zuweist. Beide Variablen zeigen da auf das gleiche Object. Heißt es gibt keine "echten" kopien.
+**Question 1: What is the difference between a reference and a copy in
+JavaScript? How does this explain the bug?**
+Bei Objekten wird bei einer Zuweisung nicht automatisch eine Kopie gemacht. Beide Variablen zeigen auf dasselbe Objekt. Wenn ich ev.status ändere, ändere ich also auch den State. Für eine echte Kopie müsste ich das Objekt extra kopieren. Das Hauptproblem war aber auch, dass das Dashboard danach nicht neu gerendert wurde.
 
 
 
-- [ ] Walk through the exact user actions and system state that trigger the bug. Could you have
-      found it by reading the code top-to-bottom without running it? Why or why not?
-Webseite öffen, dann auf evidence gehen, dort eine Evidence öffnen, im Dropdown den review status auf reviewed ändern. Dann zum Dashboard wechseln, bevor ist der review Fortschritt gleich, nachdem es nach dem verändern, von der Evidence, das Dashboard immer new rendert, wird der vorschritt richtig angezeigt. Ne ich hätts nicht gemerkt, ohne es auf der webseite zu sehen.
+**Question 2: Which steps trigger the bug? Could I have found it just by
+reading the code?**
+Ich öffne die Seite und gehe zu Evidence. Dann wähle ich eine Evidence aus. Im Dropdown stelle ich den Status auf Reviewed. Danach gehe ich zum Dashboard. Vor dem Fix war der Status im State schon geändert. Das Dashboard zeigte aber noch den alten Stand. Beim Lesen des Codes wäre das nicht sofort aufgefallen. Ich habe es erst beim Ausprobieren gesehen.
 
 ## Demo 3
 
@@ -104,7 +104,9 @@ Webseite öffen, dann auf evidence gehen, dort eine Evidence öffnen, im Dropdow
 
 #### Antwort auf die Frage
 
-Der Fehler passierte nach dem Start des asynchronen `fetch()`-Vorgangs: Die Daten wurden erfolgreich geladen, aber der Status blieb fälschlicherweise auf „loading“. Dadurch wurde der fertige Zustand nicht angezeigt.
+**Question: What exactly was wrong with the asynchronous bug?**
+
+Der fetch war erfolgreich. Die Daten waren also da. Der Ladezustand blieb aber auf true. Deshalb dachte die App noch, dass sie lädt. Die Liste wurde nicht angezeigt. Das habe ich im Network-Tab und beim Ladezustand gesehen.
 
 ---
 
@@ -164,43 +166,35 @@ erzeugt und anschließend von `renderEvidenceList()` in den Container
 
 #### Antworten auf die Fragen
 
-**Was ist der praktische Unterschied zwischen `console.log`, `console.warn` und
-`console.error`?**
+**Question 1: What is the practical difference between console.log, console.warn
+and console.error?**
 
-`console.log` gibt normale Informationen aus. `console.warn` weist auf eine
-mögliche problematische Situation hin. `console.error` kennzeichnet einen Fehler
-und enthält häufig zusätzliche Informationen wie einen Stack Trace. Die
-Meldungen können in den DevTools nach ihrem Level gefiltert werden.
+console.log ist für normale Infos. console.warn zeigt eine mögliche Warnung.
+console.error zeigt einen Fehler. Bei error sieht man oft auch den Stack Trace.
+In den DevTools kann ich nach diesen Arten filtern.
 
-**Was bedeuten Status, Type und Time bei einem Fetch-Request?**
+**Question 2: What do Status, Type and Time mean for a fetch request?**
 
-`Status` zeigt das HTTP-Ergebnis, zum Beispiel `200` für eine erfolgreiche
-Antwort. `Type` beschreibt die Art der Ressource beziehungsweise des Requests,
-hier `fetch`. `Time` zeigt, wie lange der Request gedauert hat. Bei einem `404`
-wird `fetch()` nicht automatisch abgelehnt, weil der Code `res.ok` derzeit nicht
-prüft. Wenn die 404-Antwort kein gültiges JSON enthält, schlägt `res.json()` fehl
-und der `catch`-Block gibt eine Fehlermeldung aus. Eine 404-Antwort mit gültigem
-JSON würde der aktuelle Code jedoch nicht als Fehler erkennen.
+Status ist der HTTP-Status. 200 bedeutet zum Beispiel Erfolg. Type zeigt hier
+fetch. Time zeigt, wie lange der Request gebraucht hat. Bei 404 wird fetch nicht
+automatisch abgelehnt, weil res.ok nicht geprüft wird. Bei falschem JSON gibt es
+einen Fehler. Ein 404 mit gültigem JSON würde aber nicht erkannt werden.
 
-**Welche Local-Storage-Keys gibt es und was passiert bei ungültigem JSON?**
+**Question 3: Which local storage keys does the app use, and what happens with
+invalid JSON?**
 
-Der Code verwendet `remotion_bookmarks`, `remotion_notes` und
-`remotion_hypothesis`. In meiner Local-Storage-Ansicht waren aber nur
-`remotion` und `remotion_hypothesis` vorhanden. `remotion` wird nicht gelesen,
-weil der Code exakt `remotion_notes` erwartet. Beim erneuten Laden werden die
-Werte mit `JSON.parse()` gelesen. Ungültiges JSON erzeugt einen Parse-Fehler. Der
-Bookmark-Ladevorgang fängt diesen Fehler ab und verwendet eine leere
-Bookmark-Liste; bei Notizen und der Hypothese wird der Fehler derzeit nicht
-abgefangen und kann in der Console erscheinen.
+Die Keys sind remotion_bookmarks, remotion_notes und remotion_hypothesis. Bei
+mir waren aber remotion und remotion_hypothesis vorhanden. remotion wird nicht
+gefunden, weil genau nach remotion_notes gesucht wird. Beim Laden wird JSON.parse
+verwendet. Bei falschem JSON kommt ein Fehler. Bei Bookmarks wird er abgefangen.
+Bei Notizen und der Hypothese kann er in der Console erscheinen.
 
-**Was wurde bei Slow 3G beobachtet und warum ist die Reihenfolge wichtig?**
+**Question 4: What happened with Slow 3G, and why is the loading order important?**
 
-Die Requests und das Befüllen der Ansichten dauern länger und einzelne Bereiche
-können währenddessen noch leer sein. `loadCorePeopleAndLocations()` lädt zuerst
-Fall-, Personen- und Standortdaten. Danach werden Evidence und Timeline geladen.
-Die Reihenfolge ist wichtig, weil Renderer und Dropdowns auf den geladenen State
-zugreifen. Würde eine Ansicht zu früh rendern, wären dort vorübergehend leere
-Listen oder fehlende Auswahloptionen zu sehen.
+Mit Slow 3G dauern die Requests länger. Manche Bereiche bleiben kurz leer. Zuerst
+werden Fall-, Personen- und Standortdaten geladen. Danach kommen Evidence und
+Timeline. Die Reihenfolge ist wichtig, weil die Ansichten diese Daten brauchen.
+Sonst sieht man leere Listen oder fehlende Optionen.
 
 ---
 
@@ -234,19 +228,151 @@ Modus außerdem einen `ReferenceError`, statt eine globale Variable anzulegen.
 
 ### Antworten auf die Fragen
 
-`var` ist funktions-sichtbar und kann erneut deklariert werden. `let` ist
-block-sichtbar und darf innerhalb seines Gültigkeitsbereichs neu zugewiesen
-werden. `const` ist ebenfalls block-sichtbar, darf aber nicht neu zugewiesen
-werden. Deshalb ist `const` für eine unveränderte DOM-Referenz sinnvoll, während
-`let` für einen Schleifenzähler passt.
+**Question 1: What is the difference between var, let and const?**
 
-Ein versehentliches globales Objekt entsteht bei einem klassischen Script, wenn
-man eine Zuweisung ohne `var`, `let` oder `const` schreibt. In einem ES-Modul ist
-der Code automatisch strict mode; dieselbe Zuweisung führt dort zu einem
-`ReferenceError`. Das macht den Fehler früh sichtbar.
+var gilt für die ganze Funktion und kann noch einmal deklariert werden. let und
+const gelten nur im Block. let kann neu gesetzt werden. const nicht. Für eine
+DOM-Referenz nehme ich const. Für einen Schleifenzähler passt let.
 
-Ein Beispiel für lohnendes Aufräumen ist die wiederholte Verwendung von `var` in
-den Schleifen. Die Anwendung kann damit funktionieren, aber die größere
-Sichtbarkeit erhöht das Risiko, dass eine Schleifenvariable an einer anderen
-Stelle unbeabsichtigt verwendet oder überschrieben wird. Die Block-Sichtbarkeit
-von `let` macht den Code leichter zu prüfen.
+**Question 2: What is an accidental global? What happens in an ES module?**
+
+Ein accidental global entsteht, wenn man eine Variable ohne var, let oder const
+schreibt. In einem normalen Script kann sie dann global werden. Bei einem Modul
+kommt im strict mode ein ReferenceError. So fällt der Fehler sofort auf.
+
+**Question 3: Name one code smell that can be a problem even when the code
+works.**
+
+Ein Beispiel sind die var-Variablen in den Schleifen. Die App funktioniert damit.
+Die Variablen sind aber länger sichtbar als nötig. Mit let bleiben sie im Block.
+Das ist übersichtlicher.
+
+---
+
+## Demo 9
+
+### Refaktorierung von Promises zu `async`/`await`
+
+Die ursprüngliche Datenladung war mehrfach verschachtelt: Zuerst wurde
+`case.json` geladen, danach `people.json` und erst danach `locations.json`. Die
+nächste Anfrage startete jeweils erst, wenn die vorherige Anfrage und ihr
+`response.json()`-Promise abgeschlossen waren.
+
+`loadCorePeopleAndLocations()` verwendet jetzt `async`/`await`. Die drei
+Requests bleiben absichtlich sequentiell. `loadTimelineData()` wurde ebenfalls
+umgebaut und verwendet weiterhin `try`/`catch`/`finally`. In `loadAllData()`
+werden Evidence und Timeline nach dem Core-Ladevorgang weiterhin mit
+`Promise.all()` parallel gestartet.
+
+### Antworten auf die Fragen
+
+**Question 1: What does await do? What happens to the rest of the program?**
+
+Mit await wartet die async-Funktion, bis das Promise fertig ist. Der restliche
+Code kann inzwischen weiterlaufen. Schneller wird es dadurch nicht. Der Code ist
+aber leichter zu lesen.
+
+**Question 2: What does an async function always return?**
+
+Eine async-Funktion gibt immer ein Promise zurück. Deshalb kann ich danach auch
+then verwenden. Das funktioniert bei loadCorePeopleAndLocations, obwohl darin
+await benutzt wird.
+
+**Question 3: What is the equivalent of catch when using async/await?**
+
+Das Gegenstück zu catch ist try/catch. In loadTimelineData wird der Fehler im
+catch geloggt. Mit finally wird das Laden beendet. Das passiert auch bei einem
+Fehler.
+
+**Question 4: What happens if I remove an await?**
+
+Wenn ich ein await entferne, läuft die Funktion zu früh weiter. Die Variable
+enthält dann noch ein Promise und nicht die Daten. Dadurch können leere Ansichten
+entstehen. Das ist ein typischer Async-Fehler.
+
+**Question 5: Does async/await make the code faster?**
+
+Die Geschwindigkeit und die Reihenfolge ändern sich nicht. case.json, people.json
+und locations.json werden weiter nacheinander geladen. Der Code ist mit
+async/await nur übersichtlicher.
+
+---
+
+## Demo 10
+
+Zwei Utility-Funktionen in `js/utils.js` wurden zu Arrow Functions umgebaut:
+`findEvidenceById` und `findPersonById`. Beide verwenden kein eigenes `this`,
+keine `arguments`-Variable und werden nicht als Konstruktor verwendet. Deshalb
+ändert sich ihr Laufzeitverhalten nicht.
+
+Zusätzlich wurde der `input`-Callback des Confidence-Sliders in `main.js` zu
+einer Arrow Function umgebaut. Statt des dynamischen `this` verwendet er
+`event.currentTarget`, wodurch weiterhin das auslösende Eingabefeld gelesen
+wird.
+
+Die Navigations-Callbacks mit `function ()` wurden bewusst nicht alle geändert,
+weil sie `this` als das geklickte Element verwenden. Eine Arrow Function würde
+dort kein eigenes dynamisches `this` erhalten. Außerdem bleiben
+Funktionsdeklarationen wie `setupEventListeners` und `initApp` reguläre
+Funktionen, weil ihre Hoisting-Eigenschaft im bestehenden Initialisierungsablauf
+unverändert bleiben soll.
+
+### Antworten auf die Fragen
+
+**Question 1: How do arrow functions handle this differently from regular
+functions?**
+
+Arrow Functions haben kein eigenes this. Sie nehmen das this vom äußeren Code.
+Bei normalen Funktionen hängt this vom Aufruf ab. Als Objektmethode kann eine
+Arrow Function deshalb problematisch sein. Bei Callbacks ist es oft praktisch,
+weil der äußere Kontext erhalten bleibt.
+
+**Question 2: Did the limitations with constructors or arguments affect the
+conversion?**
+
+Nein. Die Funktionen werden nicht mit new aufgerufen. arguments wird auch nicht
+verwendet. Die Utilities bekommen ihre id als Parameter. Das gilt auch für den
+Slider-Callback. Deshalb gab es hier kein Problem.
+
+**Question 3: Did hoisting matter during the refactor?**
+
+Nein. Eine Arrow Function mit const kann erst nach ihrer Initialisierung benutzt
+werden. Die Utilities werden aber erst benutzt, nachdem das Modul geladen wurde.
+Darum hat das hier keinen Unterschied gemacht. setupEventListeners und initApp
+blieben normale Funktionen.
+
+**Question 4: Show a concrete before-and-after example. Is there any runtime
+difference?**
+
+Vorher in `js/utils.js`:
+
+```js
+export function findPersonById(id) {
+	for (let i = 0; i < state.allPeople.length; i++) {
+		if (state.allPeople[i].id === id) return state.allPeople[i];
+	}
+	return null;
+}
+```
+
+Nachher:
+
+```js
+export const findPersonById = (id) => {
+	for (let i = 0; i < state.allPeople.length; i++) {
+		if (state.allPeople[i].id === id) return state.allPeople[i];
+	}
+	return null;
+};
+```
+
+Bei dieser Funktion gibt es im normalen Aufruf keinen Unterschied. Beide suchen
+dieselbe Person. Es ist hauptsächlich eine Stiländerung. this und Hoisting sind
+hier nicht wichtig.
+
+**Question 5: What rule would you suggest for choosing between function types?**
+
+Ich würde Arrow Functions für Callbacks und einfache Funktionen verwenden. Für
+Objektmethoden würde ich normale Funktionen nehmen, wenn this gebraucht wird.
+Normale Funktionsdeklarationen passen auch für wichtige, benannte Funktionen.
+So richtet sich die Entscheidung nach der Funktion und nicht nur nach dem Stil.
