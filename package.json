@@ -1,0 +1,31 @@
+{
+  "name": "mystery-road-awe-2026",
+  "version": "1.0.0",
+  "description": "Mystery Road Web Application",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "javascript",
+    "modules",
+    "vite"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@12.4.1",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.4.1",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  }
+}

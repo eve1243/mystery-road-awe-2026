@@ -56,18 +56,31 @@ ticked. The table above is just a fast overview, tick the boxes inside each demo
 **Tasks**
 
 - [ ] Choose **npm** or **pnpm** and record why you picked it over the other.
+      choose pnpm because it saves depencansys diffrently as they are not 
 - [ ] Initialize `package.json` for the project (name, version, description, etc. filled in properly).
+      when I downloaded pnpm it automaticly created a package.json
 - [ ] Add a `.gitignore` entry for `node_modules` (and any other tool output you generate in later demos, e.g. `dist/`).
 - [ ] Install one real dependency (you'll add more in later demos) and show the resulting lockfile (`package-lock.json` or `pnpm-lock.yaml`) committed to the repo.
+      I installed vite, that was automaticly added to the package.json
 
 **Questions** (depend on the tasks above)
 
 - [ ] What problem does a package manager actually solve that "download the library and put it in a folder yourself" doesn't? Be specific.
+      Es lädt automatisch alle abhängigkeiten/bibiliotheken mit herunter. Wenns neue versionen gibt, muss man diese nicht manuel aktualisieren.
 - [ ] What's the difference between `dependencies` and `devDependencies` in `package.json`? Which
       category will Vite, your linter/formatter, and TypeScript belong to, and why?
+      
+      dependencies: Code zur Laufzeit beim Endnutzer (z. B. React).
+      devDependencies: Tools nur für Entwicklung und Build (Vite, Linter, TypeScript).
+      Vite, Linter, TypeScript: Gehören in devDependencies, da sie den Code nur bauen/prüfen und nicht im Browser ausgeführt werden.
 - [ ] What is a lockfile for, and what could go wrong for your teammates (or CI) if it weren't
       committed to the repo?
+      Friert den exakten Abhängigkeitsbaum inklusive aller Unterabhängigkeiten ein.
+      Teammitglieder oder CI installieren abweichende Unter-Versionen – es entstehen unvorhersehbare Bugs („Works on my machine“).
+
 - [ ] If you chose pnpm: what does it do differently from npm regarding how `node_modules` is laid out and how disk space/install time is shared across projects? If you chose npm: what would you gain or lose by switching to pnpm on a larger project?
+      Globale Ablage auf der Festplatte via Symlinks/Hard Links; spart Speicherplatz und beschleunigt Installationen massiv.
+      Verhindert „Phantom Dependencies“ durch eine strikte Symlink-Struktur in node_modules. Code auf ein NPM-Paket zugreifen und dieses importieren kann, obwohl es nicht in deiner package.json als Abhängigkeit eingetragen ist
 
 ---
 
