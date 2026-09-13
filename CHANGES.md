@@ -10,7 +10,7 @@
 * Man kann importierte Variable nicht neu zuweisen, hatte Fehler in `api.js` bei z. B.: `caseData = caseJson` genauso muss alles von `state......` importiert werden.
 * Hatte einen Fehler beim Start, weil ich die imports falsch gemacht habe. `import * as state from ...` geht nicht, weil `state` ein Modulname ist und schreibgeschützt ist, habe ein Object `state` erstellt und daraus kann man importieren. --> Object Mutation
 * Hab daweil das `if (typeof window.renderDashboard === 'function') { window.renderDashboard(); }`, weil ich noch nicht alle Module sauber getrennt habe und so manchmal dann nicht weiß, ob es global verfügbar ist.
-* Hatte dann einen Fehler beim Modulieren, weil im `index` alte globale Funktionen erwartet werden, die ich dann noch ändern muss, damit alles geht. Die `onclick`-Funktionen müssen auf `window` gesetzt werden.
+* Hatte dann einen Fehler beim Modulieren, weil im index.html alte globale Funktionen erwartet werden, die ich dann noch ändern muss, damit alles geht. Die onclick-Funktionen müssen auf window gesetzt werden.
 * Die alten Variablen, wo überall davor `state` muss, ist auch sehr zach, weil es schon relativ viele sind und die in allen Modulen verteilt sind.
 * Habe nur die Funktionen exportiert, die von anderen Modulen verwendet werden. Z. B.: `countEvidenceForPerson` in `people.js` kann privat bleiben, weil nur `renderPeople` es nutzt.
 * `VM4826 index.html:1 Uncaught ReferenceError: navigateTo is not defined at HTMLButtonElement.onclick (VM4826 index.html:1:1)`
@@ -20,10 +20,10 @@
 ## 2. Fragen & Antworten
 
 ### Frage 1
-> What is the difference between a classic `<script>` and a `<script type="module">`? Name at least two behavioral differences that are relevant to this app.
+> What is the difference between a classic <script> and a <script type="module">? Name at least two behavioral differences that are relevant to this app.
 
 **Antwort:**  
-Bei einem normalen Script sind viele Variablen global. Das ist praktisch, aber sie können sich auch leichter überschreiben. Bei einem Modul bleibt der Code zuerst in seiner Datei. Andere Dateien brauchen dafür export und import. Module laufen außerdem automatisch im strict mode.
+Bei einem normalen Script sind viele Variablen global. Das ist praktisch, aber sie können sich auch leichter überschreiben. Bei einem Modul bleibt der Code zuerst in seiner Datei. Andere Dateien brauchen dafür export und import. Module laufen außerdem automatisch im strict mode, bedeutet bestimmte Fehler werden sofort angezeigt.
 
 ---
 
@@ -47,7 +47,8 @@ Ein Named Export hat einen festen Namen. Ein Modul kann mehrere davon haben. Ein
 > Why won't `type="module"` scripts run at all if you open `index.html` directly from disk (`file://...`) instead of through a local HTTP server? (You already need a server for `fetch()` — is this the same reason, a different one, or both?)
 
 **Antwort:**  
-Die App braucht einen Server. Der Browser lädt Module von file nicht normal. Auch fetch auf die JSON-Dateien funktioniert dann wegen den Sicherheitsregeln nicht. Deshalb starte ich die App über einen HTTP-Server.
+Die App geht nicht, weil der Browser für die Module von file einen gültigen Ursprung braucht und CORS-Regeln benutzt. (Cross-Origin Resource Sharing: Wenn eine Website Daten von einem anderen Origin laden möchte, entscheidet der Browser, ob das erlaubt ist) Heißt die Dateien haben keinen normalen HTTP-Ursprung und können deshalb die Module blockieren. Auch fetch auf die JSON-Dateien funktioniert dann wegen den Sicherheitsregeln nicht. Deshalb starte ich die App über einen HTTP-Server.
+Modul der browser sagt schon am anfang nein. Fetch heißt der browser würd irgendwann checken es geht nicht.
 
 ---
 
@@ -107,6 +108,119 @@ Ich öffne die Seite und gehe zu Evidence. Dann wähle ich eine Evidence aus. Im
 **Question: What exactly was wrong with the asynchronous bug?**
 
 Der fetch war erfolgreich. Die Daten waren also da. Der Ladezustand blieb aber auf true. Deshalb dachte die App noch, dass sie lädt. Die Liste wurde nicht angezeigt. Das habe ich im Network-Tab und beim Ladezustand gesehen.
+
+---
+
+## Demo 4
+
+### Stiller Router-Fehler bei einem unbekannten Hash
+
+#### Reproduktion
+
+1. Die Anwendung über einen lokalen HTTP-Server starten und die Console öffnen.
+2. In der URL den Hash auf einen unbekannten Wert setzen, zum Beispiel
+	`http://localhost:8080/#unknown`.
+3. Die Navigation bleibt stehen und in der Console erscheint:
+
+```text
+Uncaught TypeError: Assignment to constant variable.
+```
+
+#### Ursache und Fix
+
+In `handleHashChange()` wurde der aktuelle Hash mit `const` deklariert. Bei
+einem unbekannten Hash sollte er auf `dashboard` zurückgesetzt werden, aber
+eine `const`-Variable darf nicht neu zugewiesen werden. Dadurch brach die
+Funktion vor dem Setzen der aktiven Ansicht ab.
+
+Die Variable ist jetzt `let`. Ein unbekannter Hash wird dadurch zuverlässig
+auf `dashboard` normalisiert. Nach dem Fix bleibt die Console bei diesem
+Szenario sauber und das Dashboard wird angezeigt.
+
+#### Antwort auf die Frage
+
+Ich habe den Fehler durch einen absichtlich ungültigen Hash gefunden, obwohl
+die normale Navigation funktioniert hat. Das zeigt, dass eine unveränderte
+Oberfläche nicht beweist, dass kein Fehler passiert: Der Fehler wurde nur in
+der Console sichtbar und betraf einen Randfall.
+
+---
+
+## Demo 5
+
+### Vollständiger Durchlauf und zusätzliche Fehler
+
+Ich habe alle Ansichten mehrfach geprüft: Dashboard, Evidence mit Suche,
+Filtern, Sortierung, Bookmark und Detailansicht, People & Locations mit beiden
+Tabs, Timeline mit Filtern und Evidence-Link sowie Workspace mit Bookmarks,
+Notizen, Hypothese und Reload.
+
+| Bereich | Reproduktion | Ursache und Fix | Prüfung |
+|---|---|---|---|
+| Evidence-Status | Status im Detail auf `Reviewed` setzen und zum Dashboard wechseln | Das Evidence-Objekt wurde direkt mutiert, aber das Dashboard nicht neu gerendert. Danach wird `renderDashboard()` aufgerufen. | Review-Zähler und Fortschritt aktualisieren sich sofort. |
+| Evidence-Laden | Evidence-Ansicht während bzw. nach dem Laden öffnen | `evidenceViewLoading` blieb bei `true`; außerdem wurde der Evidence-Promise nicht abgewartet. Der Ladezustand wird jetzt beendet und `loadAllData()` wartet auf beide Promises. | Liste erscheint nach erfolgreichem Laden auch bei langsamer Verbindung. |
+| Ungültiger URL-Hash | `#unknown` direkt in die URL schreiben | `const hash` wurde neu zugewiesen und löste einen TypeError aus. Jetzt wird `let` verwendet. | Dashboard erscheint, keine Console-Exception. |
+| Beschädigte Notizen/Hypothese | In Application/Storage einen Schlüssel mit ungültigem JSON überschreiben und neu laden | `JSON.parse()` wurde beim Laden nicht abgefangen. Beide Ladevorgänge behandeln den Fehler jetzt, warnen und starten mit leerem Zustand. | Seite bleibt bedienbar; nur eine verständliche Warnung erscheint. |
+
+#### Ausgewählter Live-Fall für die Präsentation
+
+Ich präsentiere den Evidence-Ladefehler aus Demo 3: Evidence öffnen, den
+Ladeindikator beobachten, anschließend den alten und den neuen Code vergleichen.
+Der Fehler ist vom Status `evidenceViewLoading` abhängig und lässt sich mit
+Network-Throttling reproduzieren. Nach dem Fix wird der Status im erfolgreichen
+und im fehlerhaften Promise-Pfad zurückgesetzt.
+
+Die Fixes wurden isoliert geprüft: Statusänderung aktualisiert nur das
+Dashboard, der Promise-Fix nur den Ladevorgang, der Router-Fix nur ungültige
+Hashes und die Storage-Fixes nur beschädigte lokale Daten.
+
+#### Antworten auf die Fragen
+
+Beim ausgewählten Evidence-Fall wird zuerst der Zustand `evidenceViewLoading`
+auf `true` gesetzt. Nach Abschluss des Fetch muss er auf `false` gesetzt werden,
+sonst rendert die Ansicht weiterhin den Ladeblock. Der Bug war deshalb kein
+reines Darstellungsproblem, sondern ein fehlender Zustandsübergang nach einem
+Promise.
+
+Die Fehler haben sich nicht gegenseitig behoben. Ich habe jeden Fall einzeln
+mit seinen ursprünglichen Schritten und danach erneut zusammen mit den anderen
+Ansichten geprüft.
+
+---
+
+## Demo 6
+
+### Debugger-Durchlauf
+
+Für die Live-Demo verwende ich den Evidence-Ladefehler aus Demo 3.
+
+1. DevTools öffnen, `Sources` auswählen und in `js/api.js` einen Breakpoint in
+	der Erfolgsfunktion von `loadEvidenceData()` setzen.
+2. Seite neu laden und mit `Step over` durch das Leeren und Befüllen von
+	`state.allEvidence` gehen.
+3. Mit `Step into` in `applyStoredBookmarkFlags()` springen und anschließend
+	mit `Step out` zurück in den Ladeablauf gehen.
+4. Im Call Stack erklären: `loadAllData()` hat `loadEvidenceData()` gestartet;
+	der Fetch-Callback wird erst nach dem Promise-Ergebnis aufgerufen.
+5. Einen Conditional Breakpoint auf `state.allEvidence.length > 0` setzen.
+	Dadurch stoppt der Debugger erst, wenn tatsächlich Daten geladen wurden.
+6. In Scope/Watch `state.evidenceViewLoading` beobachten. Vor dem Fix bleibt
+	der Wert `true`, nach dem Fix wird er `false`. Den Wert einmal testweise
+	auf `false` setzen, um die Hypothese zu prüfen, ohne den Quellcode zu ändern.
+
+`Step over` führt die aktuelle Zeile aus, ohne in aufgerufene Funktionen zu
+springen. `Step into` öffnet genau eine solche Funktion. `Step out` führt den
+Rest der aktuellen Funktion aus und kehrt zum Aufrufer zurück. Der Call Stack
+zeigt dabei, welcher Aufrufer den aktuellen Callback erreicht hat.
+
+Ein Breakpoint aus der DevTools-Oberfläche ist temporär und verändert den Code
+nicht. Ein `debugger;`-Statement steht dagegen im Quelltext und stoppt jede
+Ausführung an dieser Stelle, wenn DevTools geöffnet ist. Für die Präsentation
+verwende ich den UI-Breakpoint, damit kein Debug-Code im Produkt bleibt.
+
+`console.log` hätte die Werte nur an ausgewählten Stellen ausgegeben. Der
+Debugger zeigt dagegen die Reihenfolge der Promise-Fortsetzung, den Call Stack
+und den Wert von `evidenceViewLoading` zwischen den einzelnen Anweisungen.
 
 ---
 

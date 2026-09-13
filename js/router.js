@@ -10,7 +10,7 @@ export function navigateTo(viewName) {
 }
 
 export function handleHashChange() {
-  const hash = window.location.hash.replace("#", "");
+  let hash = window.location.hash.replace("#", "");
   const validViews = ["dashboard", "evidence", "people", "timeline", "workspace"];
   if (validViews.indexOf(hash) === -1) {
     hash = "dashboard";

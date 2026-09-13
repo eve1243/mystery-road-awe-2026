@@ -33,8 +33,8 @@ your fix works.
 | 1 | Split the app into JS modules | ☐ |
 | 2 | Bug hunt — mutation/reference bug | ☐ |
 | 3 | Bug hunt — an asynchronous/Promise-handling bug | ☐ |
-| 4 | Bug hunt — silent (console-only) bug | ☐ |
-| 5 | Bug hunt — full walkthrough & reflection | ☐ |
+| 4 | Bug hunt — silent (console-only) bug | ☑ |
+| 5 | Bug hunt — full walkthrough & reflection | ☑ |
 | 6 | Use the JavaScript debugger | ☐ |
 | 7 | DevTools tour (Console/Network/Application/Elements) | ☐ |
 | 8 | Clean coding: globals, `var`/`let`/`const`, code smells | ☐ |

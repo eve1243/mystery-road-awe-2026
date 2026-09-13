@@ -134,7 +134,13 @@ export function loadHypothesisFromStorage() {
   const raw = localStorage.getItem(STORAGE_KEY_HYPOTHESIS);
   if (!raw) return;
 
-  const draft = JSON.parse(raw);
+  let draft;
+  try {
+    draft = JSON.parse(raw);
+  } catch (err) {
+    console.warn("Could not read stored hypothesis, starting empty", err);
+    return;
+  }
 
   const suspectElem = document.getElementById("hypSuspect");
   const natureElem = document.getElementById("hypNature");

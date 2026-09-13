@@ -1,3 +1,9 @@
 {
-    "liveServer.settings.port": 5501
+    "liveServer.settings.port": 5501,
+    "chat.tools.terminal.autoApprove": {
+        "/^node --check js/storage\\.js; node --check js/workspace\\.js$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }
