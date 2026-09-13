@@ -1,7 +1,7 @@
 // js/main.js
-import { loadAllData } from './js/api.js';
-import { navigateTo, handleHashChange } from './js/router.js';
-import { loadBookmarksFromStorage, loadNotesFromStorage, loadNoteAsync } from './js/storage.js';
+import { loadAllData } from '../js/api.js';
+import { navigateTo, handleHashChange } from '../js/router.js';
+import { loadBookmarksFromStorage, loadNotesFromStorage, loadNoteAsync } from '../js/storage.js';
 import {
   handleSearchInput,
   renderEvidenceList,
@@ -10,10 +10,10 @@ import {
   saveCurrentNote,
   closeEvidenceDetail,
   openEvidenceDetail
-} from './js/evidence.js';
-import { switchPeopleTab } from './js/people.js';
-import { renderTimeline } from './js/timeline.js';
-import { saveHypothesis } from './js/workspace.js';
+} from '../js/evidence.js';
+import { switchPeopleTab } from '../js/people.js';
+import { renderTimeline } from '../js/timeline.js';
+import { saveHypothesis } from '../js/workspace.js';
 
 
 function setupEventListeners() {

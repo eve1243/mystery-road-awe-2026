@@ -88,15 +88,56 @@ ticked. The table above is just a fast overview, tick the boxes inside each demo
 
 **Tasks**
 
-- [ ] Install Vite and configure it for this project (restructure files if needed so Vite can find `index.html`/your modules/the `data/` and `assets/` folders correctly).
-- [ ] Get `vite`'s dev server running the app with the same functionality it had before. Verify every view still works, not just that the page loads.
-- [ ] Trigger Hot Module Replacement at least once: change something in the running app's source and observe the update happen without a full page reload.
+- [x] Install Vite and configure it for this project (restructure files if needed so Vite can find `index.html`/your modules/the `data/` and `assets/` folders correctly).
+- [x] Get `vite`'s dev server running the app with the same functionality it had before. Verify every view still works, not just that the page loads.
+- [x] Trigger Hot Module Replacement at least once: change something in the running app's source and observe the update happen without a full page reload.
 
 **Questions** (depend on the tasks above)
 
-- [ ] What is the difference between how you used to run this app (a plain static file server) and running it through Vite's dev server? Name at least one thing Vite's dev server does that a plain static server doesn't.
-- [ ] What is Hot Module Replacement, and what specifically did you observe happen (and *not* happen, e.g. to app state) when you triggered it?
-- [ ] Why does an app already split into ES modules (Exercise 1) integrate naturally with a tool like Vite, compared to the original single-`<script>` version?
+- [x] What is the difference between how you used to run this app (a plain static file server) and running it through Vite's dev server? Name at least one thing Vite's dev server does that a plain static server doesn't.
+- [x] What is Hot Module Replacement, and what specifically did you observe happen (and *not* happen, e.g. to app state) when you triggered it?
+- [x] Why does an app already split into ES modules (Exercise 1) integrate naturally with a tool like Vite, compared to the original single-`<script>` version?
+
+### Verification notes
+
+The app runs with `pnpm dev --host 127.0.0.1` at `http://127.0.0.1:5173/`.
+The existing root `index.html` is the Vite entry point and loads
+`/src/main.js`; that entry point imports the Exercise 1 modules from `js/`.
+The Vite config keeps the project root as the serving root and defines aliases
+for `src`, `data`, `assets`, and `js`, so no data or asset folder had to be
+moved.
+
+I verified the following in the running browser:
+
+- Dashboard: case data, statistics, recent evidence, and recent timeline events
+      render correctly.
+- Evidence: 18 cards render, and opening the first card shows its detail view.
+- People & Locations: 6 people render, and switching to Locations shows 6
+      locations.
+- Timeline: 15 timeline events render.
+- Workspace: bookmarks/notes areas and the hypothesis form render, including
+      all loaded evidence options.
+
+No browser `pageerror` occurred during the walkthrough.
+
+The plain HTTP server only serves files. Vite additionally resolves the module
+graph, provides the development server with fast reload/HMR, and reports module
+or import errors in the browser and terminal. ES modules from Exercise 1 fit
+naturally because Vite can follow their explicit `import`/`export` graph; the
+original single sscript had no module graph to transform.
+
+For the HMR demonstration, I changed the document title in `index.html` while
+the Vite page was open. The browser title changed to `Project ReMotion –
+Investigation Portal (Vite HMR test)` without a manual full reload. The current
+`#workspace` hash stayed unchanged, so the active view was preserved. I then
+restored the original title.
+
+HMR means that Vite sends the changed module or document update over its
+development WebSocket connection while the dev server keeps running. A plain
+static server only serves the changed file and does not provide this update
+connection. The ES-module split gives Vite an explicit import graph to follow,
+transform, and update; the original single classic script did not expose that
+graph.
 
 ---
 
