@@ -39,7 +39,7 @@ or answer on the spot, live.**
 | 2 | Integrate Vite as the dev server | ☐ |
 | 3 | Production build & preview | ☐ |
 | 4 | `package.json` scripts: lint & format | ☑ |
-| 5 | TypeScript setup & first conversions | ☐ |
+| 5 | TypeScript setup & first conversions | ☑ |
 | 6 | Typing the domain data | ☐ |
 | 7 | Full migration & resolving type errors | ☐ |
 | 8 | GitHub Actions: development workflow | ☐ |
@@ -257,15 +257,53 @@ the wrong version on another machine.
 
 **Tasks**
 
-- [ ] Install TypeScript and add a `tsconfig.json`. Deliberately choose your strictness settings (don't just copy a default blindly) and be ready to justify at least one setting you turned on or left off.
-- [ ] Convert 2–3 of your smallest/utility modules from Exercise 1 (e.g. formatting or lookup helpers) from `.js` to `.ts`, with **no `any`**, and get them compiling with zero errors.
-- [ ] Wire TypeScript into your `build`/`dev` scripts from Demo 4 so type errors are actually surfaced by your tooling, not just by your editor.
+- [x] Install TypeScript and add a `tsconfig.json`. Deliberately choose your strictness settings (don't just copy a default blindly) and be ready to justify at least one setting you turned on or left off.
+- [x] Convert 2–3 of your smallest/utility modules from Exercise 1 (e.g. formatting or lookup helpers) from `.js` to `.ts`, with **no `any`**, and get them compiling with zero errors.
+- [x] Wire TypeScript into your `build`/`dev` scripts from Demo 4 so type errors are actually surfaced by your tooling, not just by your editor.
 
 **Questions** (depend on the tasks above)
 
-- [ ] What does the `strict` option in `tsconfig.json` actually turn on? Name at least two individual checks bundled under it, and say whether you kept it on and why.
-- [ ] What is the difference between a compile-time type error and the runtime bugs you fixed in Exercise 1? Could TypeScript alone have caught any of those specific bugs? Why or why not?
-- [ ] What does `any` do to TypeScript's checking for a value, and why did you avoid it in this first pass even though it would have been faster to just silence the errors with it?
+- [x] What does the `strict` option in `tsconfig.json` actually turn on? Name at least two individual checks bundled under it, and say whether you kept it on and why.
+- [x] What is the difference between a compile-time type error and the runtime bugs you fixed in Exercise 1? Could TypeScript alone have caught any of those specific bugs? Why or why not?
+- [x] What does `any` do to TypeScript's checking for a value, and why did you avoid it in this first pass even though it would have been faster to just silence the errors with it?
+
+### Verification notes
+
+TypeScript 7 is installed as a `devDependency`, and `tsconfig.json` uses
+`strict: true`, `noEmit: true`, ES2022, DOM libraries, and bundler module
+resolution. `strict` was deliberately enabled because it combines checks such
+as `noImplicitAny` and `strictNullChecks`; this makes missing types and possible
+null values visible during the migration. `noEmit` is intentional because Vite
+does the browser build while TypeScript is used here as a separate type checker.
+
+The first conversion includes `js/state.ts` and `js/utils.ts`. `state.ts`
+defines explicit `Evidence`, `Person`, `Location`, `TimelineEvent`, and app-state
+interfaces. `utils.ts` uses those types for lookup parameters and return values,
+including `Evidence | null` and `Person | null`. No `any` was added.
+
+The `typecheck` script runs `tsc --noEmit`. Both `dev` and `build` run
+`pnpm typecheck` before Vite starts or builds, so a TypeScript error blocks the
+normal workflow rather than appearing only as an editor warning. The check
+completed with zero errors, and `pnpm build` still completed successfully after
+the conversion.
+
+`strict` is a group of safety checks, not a single runtime feature. For example,
+`noImplicitAny` rejects values whose type was accidentally left implicit, while
+`strictNullChecks` requires code to handle `null` and `undefined` explicitly.
+Keeping both on forced the lookup utilities to declare nullable return values.
+
+A compile-time error is found before the application runs, while the Exercise 1
+bugs were runtime behavior problems: stale rendering after state mutation,
+incorrect Promise/loading state, and invalid-hash navigation. TypeScript could
+help with the invalid assignment to a `const` if that code were typed and
+checked, but it cannot by itself prove that a render is needed after mutation or
+that a Promise state transition happens at the correct time.
+
+The `any` type disables useful checking for a value and lets unsafe operations
+spread through dependent code. I avoided it because the goal of this first pass
+was to model the real domain boundary, not to hide migration errors. JSON data
+still needs runtime validation later; static types describe what the code
+expects, not what an external file actually contains.
 
 ---
 

@@ -6,12 +6,13 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "pnpm typecheck && vite",
+    "build": "pnpm typecheck && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write src/main.js vite.config.js package.json"
+    "format": "prettier --write src/main.js js/*.ts vite.config.js package.json tsconfig.json",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "javascript",
@@ -33,6 +34,7 @@
     "eslint": "^10.10.0",
     "globals": "^17.12.0",
     "prettier": "^3.9.6",
+    "typescript": "^7.0.2",
     "vite": "^8.3.0"
   }
 }
