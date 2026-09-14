@@ -38,7 +38,7 @@ or answer on the spot, live.**
 | 1 | Initialize the package manager & project metadata | ☐ |
 | 2 | Integrate Vite as the dev server | ☐ |
 | 3 | Production build & preview | ☐ |
-| 4 | `package.json` scripts: lint & format | ☐ |
+| 4 | `package.json` scripts: lint & format | ☑ |
 | 5 | TypeScript setup & first conversions | ☐ |
 | 6 | Typing the domain data | ☐ |
 | 7 | Full migration & resolving type errors | ☐ |
@@ -203,15 +203,53 @@ instead.
 
 **Tasks**
 
-- [ ] Install and configure a linter (e.g. ESLint) and a formatter (e.g. Prettier) for this TypeScript/JS project.
-- [ ] Add these scripts to `package.json`: `dev`, `build`, `lint`, `lint:fix`, `format`. Each one must actually do something real when run, not just print a placeholder.
-- [ ] Run `lint` and show it catching at least one real issue in your code (introduce one on purpose if you have to). Run `lint:fix` and/or `format` and show it actually changing a file.
+- [x] Install and configure a linter (e.g. ESLint) and a formatter (e.g. Prettier) for this TypeScript/JS project.
+- [x] Add these scripts to `package.json`: `dev`, `build`, `lint`, `lint:fix`, `format`. Each one must actually do something real when run, not just print a placeholder.
+- [x] Run `lint` and show it catching at least one real issue in your code (introduce one on purpose if you have to). Run `lint:fix` and/or `format` and show it actually changing a file.
 
 **Questions** (depend on the tasks above)
 
-- [ ] What's the difference between what a linter checks/fixes and what a formatter checks/fixes? Give one concrete finding from each tool on this codebase.
-- [ ] Why are `lint` and `lint:fix` two separate scripts instead of one script that always auto-fixes? When would you deliberately want the non-fixing version?
-- [ ] What does `npm run lint` (or `pnpm lint`) actually do under the hood? Where does npm/pnpm look for the `lint` command, and would it work if your linter weren't installed as a project dependency (only globally on your machine)?
+- [x] What's the difference between what a linter checks/fixes and what a formatter checks/fixes? Give one concrete finding from each tool on this codebase.
+- [x] Why are `lint` and `lint:fix` two separate scripts instead of one script that always auto-fixes? When would you deliberately want the non-fixing version?
+- [x] What does `npm run lint` (or `pnpm lint`) actually do under the hood? Where does npm/pnpm look for the `lint` command, and would it work if your linter weren't installed as a project dependency (only globally on your machine)?
+
+### Verification notes
+
+ESLint 10 and Prettier 3 are installed as `devDependencies`. ESLint is
+configured in `eslint.config.js` for the active modules in `js/`, `src/`, and
+the Vite config. The old unused `app.js` monolith and generated `dist/` output
+are ignored. Prettier uses `.prettierrc` and formats the current entry point,
+Vite config, and package file.
+
+The following real scripts are now in `package.json`:
+
+- `pnpm lint` runs `eslint .` and checks the project without changing files.
+- `pnpm lint:fix` runs `eslint . --fix` for automatically fixable lint rules.
+- `pnpm format` runs Prettier with `--write` on the configured source/config files.
+
+`pnpm lint` found eight real `no-console` warnings in the application, for
+example diagnostic output in `js/api.js` and `js/storage.js`. They are warnings
+rather than errors because these logs are intentional error/reporting paths.
+The formatter changed the configured files' whitespace and layout; a following
+`prettier --check` reported that all of them match the configured style.
+
+A linter checks code-quality and correctness rules, such as unused variables,
+undefined names, and in this project unexpected console statements. A formatter
+only normalizes presentation, such as indentation, quotes, semicolons, and line
+wrapping; it does not decide whether a `console.error` is appropriate.
+
+`lint` and `lint:fix` are separate because the read-only version is useful in CI
+and code review: it reports problems without silently rewriting files. The fix
+version is convenient locally for rules that ESLint can repair safely. Prettier
+is separate for the same reason: formatting is a deterministic style operation,
+not a replacement for semantic lint checks.
+
+When `pnpm lint` runs, pnpm reads the `lint` command from the `scripts` object in
+`package.json` and resolves the local `eslint` executable from
+`node_modules/.bin`. It is reproducible for teammates and CI because ESLint is
+listed in `devDependencies` and locked in `pnpm-lock.yaml`; a tool installed
+only globally is not a reliable project dependency and may be missing or have
+the wrong version on another machine.
 
 ---
 

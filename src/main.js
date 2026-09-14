@@ -1,7 +1,11 @@
 // js/main.js
-import { loadAllData } from '../js/api.js';
-import { navigateTo, handleHashChange } from '../js/router.js';
-import { loadBookmarksFromStorage, loadNotesFromStorage, loadNoteAsync } from '../js/storage.js';
+import { loadAllData } from "../js/api.js";
+import { navigateTo, handleHashChange } from "../js/router.js";
+import {
+  loadBookmarksFromStorage,
+  loadNotesFromStorage,
+  loadNoteAsync,
+} from "../js/storage.js";
 import {
   handleSearchInput,
   renderEvidenceList,
@@ -9,12 +13,11 @@ import {
   handleSortChange,
   saveCurrentNote,
   closeEvidenceDetail,
-  openEvidenceDetail
-} from '../js/evidence.js';
-import { switchPeopleTab } from '../js/people.js';
-import { renderTimeline } from '../js/timeline.js';
-import { saveHypothesis } from '../js/workspace.js';
-
+  openEvidenceDetail,
+} from "../js/evidence.js";
+import { switchPeopleTab } from "../js/people.js";
+import { renderTimeline } from "../js/timeline.js";
+import { saveHypothesis } from "../js/workspace.js";
 
 function setupEventListeners() {
   window.addEventListener("hashchange", handleHashChange);
@@ -35,7 +38,8 @@ function setupEventListeners() {
   }
 
   const evidenceSearch = document.getElementById("evidenceSearch");
-  if (evidenceSearch) evidenceSearch.addEventListener("input", handleSearchInput);
+  if (evidenceSearch)
+    evidenceSearch.addEventListener("input", handleSearchInput);
 
   const filterType = document.getElementById("filterType");
   if (filterType) filterType.addEventListener("change", renderEvidenceList);
@@ -44,13 +48,15 @@ function setupEventListeners() {
   if (filterPerson) filterPerson.addEventListener("change", renderEvidenceList);
 
   const filterLocation = document.getElementById("filterLocation");
-  if (filterLocation) filterLocation.addEventListener("change", renderEvidenceList);
+  if (filterLocation)
+    filterLocation.addEventListener("change", renderEvidenceList);
 
   const filterStatus = document.getElementById("filterStatus");
   if (filterStatus) filterStatus.addEventListener("change", renderEvidenceList);
 
   const filterRelevance = document.getElementById("filterRelevance");
-  if (filterRelevance) filterRelevance.addEventListener("change", renderEvidenceList);
+  if (filterRelevance)
+    filterRelevance.addEventListener("change", renderEvidenceList);
 
   const clearFiltersBtn = document.getElementById("clearFiltersBtn");
   if (clearFiltersBtn) clearFiltersBtn.addEventListener("click", clearFilters);
@@ -59,22 +65,33 @@ function setupEventListeners() {
   if (sortEvidence) sortEvidence.addEventListener("change", handleSortChange);
 
   const peopleTabBtn = document.getElementById("tabPeopleBtn");
-  if (peopleTabBtn) peopleTabBtn.addEventListener("click", function () { switchPeopleTab("people"); });
+  if (peopleTabBtn)
+    peopleTabBtn.addEventListener("click", function () {
+      switchPeopleTab("people");
+    });
 
   const locationsTabBtn = document.getElementById("tabLocationsBtn");
-  if (locationsTabBtn) locationsTabBtn.addEventListener("click", function () { switchPeopleTab("locations"); });
+  if (locationsTabBtn)
+    locationsTabBtn.addEventListener("click", function () {
+      switchPeopleTab("locations");
+    });
 
   const timelineOrder = document.getElementById("timelineOrder");
   if (timelineOrder) timelineOrder.addEventListener("change", renderTimeline);
 
   const timelinePersonFilter = document.getElementById("timelinePersonFilter");
-  if (timelinePersonFilter) timelinePersonFilter.addEventListener("change", renderTimeline);
+  if (timelinePersonFilter)
+    timelinePersonFilter.addEventListener("change", renderTimeline);
 
-  const timelineLocationFilter = document.getElementById("timelineLocationFilter");
-  if (timelineLocationFilter) timelineLocationFilter.addEventListener("change", renderTimeline);
+  const timelineLocationFilter = document.getElementById(
+    "timelineLocationFilter"
+  );
+  if (timelineLocationFilter)
+    timelineLocationFilter.addEventListener("change", renderTimeline);
 
   const timelineTypeFilter = document.getElementById("timelineTypeFilter");
-  if (timelineTypeFilter) timelineTypeFilter.addEventListener("change", renderTimeline);
+  if (timelineTypeFilter)
+    timelineTypeFilter.addEventListener("change", renderTimeline);
 
   const hypConfidence = document.getElementById("hypConfidence");
   if (hypConfidence) {
@@ -85,7 +102,8 @@ function setupEventListeners() {
   }
 
   const saveHypothesisBtn = document.getElementById("saveHypothesisBtn");
-  if (saveHypothesisBtn) saveHypothesisBtn.addEventListener("click", saveHypothesis);
+  if (saveHypothesisBtn)
+    saveHypothesisBtn.addEventListener("click", saveHypothesis);
 
   document.addEventListener("click", function (event) {
     const closeButton = event.target.closest(".modal-close-btn");
@@ -103,7 +121,9 @@ function setupEventListeners() {
       }, 0);
     }
 
-    const closeEvidenceDetailBtn = event.target.closest("[data-close-evidence-detail]");
+    const closeEvidenceDetailBtn = event.target.closest(
+      "[data-close-evidence-detail]"
+    );
     if (closeEvidenceDetailBtn) {
       closeEvidenceDetail();
     }
