@@ -145,15 +145,57 @@ graph.
 
 **Tasks**
 
-- [ ] Run the production build (`vite build`) and inspect the generated `dist/` folder.
-- [ ] Serve that build locally with `vite preview` (not the dev server) and confirm the app still works end-to-end from the built output.
-- [ ] Compare the dev-mode source with the built output for at least one file: note what changed (filenames, size, formatting/minification).
+- [x] Run the production build (`vite build`) and inspect the generated `dist/` folder.
+- [x] Serve that build locally with `vite preview` (not the dev server) and confirm the app still works end-to-end from the built output.
+- [x] Compare the dev-mode source with the built output for at least one file: note what changed (filenames, size, formatting/minification).
 
 **Questions** (depend on the tasks above)
 
-- [ ] Name at least three concrete transformations Vite applied to your source when building for production (e.g. bundling, minification, hashed filenames. Pick the ones you actually observed).
-- [ ] Why do production filenames typically include a content hash? What problem does that solve for real deployments?
-- [ ] Why would you never want to deploy the dev server itself (`vite dev`/`vite`) to real users, even though it "works"?
+- [x] Name at least three concrete transformations Vite applied to your source when building for production (e.g. bundling, minification, hashed filenames. Pick the ones you actually observed).
+- [x] Why do production filenames typically include a content hash? What problem does that solve for real deployments?
+- [x] Why would you never want to deploy the dev server itself (`vite dev`/`vite`) to real users, even though it "works"?
+
+### Verification notes
+
+`pnpm build` completed successfully with Vite 8.3.0. Vite transformed 15
+modules and generated `dist/index.html`, the hashed bundles
+`dist/assets/index-DZFEhmtM.js` and `dist/assets/index-ZAWMSz9M.css`, plus the
+five JSON files in `dist/data/`.
+
+The first preview attempt exposed a real build issue: the app loaded its HTML
+but stayed on the loading screen because the runtime `fetch("data/*.json")`
+files were not copied into `dist/`. The Vite config now copies the existing
+`data/` files during `writeBundle`, so the built app uses the same data as the
+development app.
+
+I tested `pnpm preview --host 127.0.0.1` at
+`http://127.0.0.1:4173/`. The production build worked in every view: the
+Dashboard rendered, Evidence showed 18 cards, People showed 6 people and 6
+locations after switching tabs, Timeline showed 15 events, and Workspace
+showed the hypothesis form. No browser `pageerror` occurred.
+
+The comparison showed that `src/main.js` is 5,148 bytes as readable source,
+while the generated JavaScript bundle is 26,111 bytes because it contains the
+imported application modules together. Vite also minified the production
+assets, emitted a separate CSS asset, and added content hashes to the asset
+filenames.
+
+The three concrete production transformations I observed are:
+
+1. The imported JavaScript modules were bundled into one production asset.
+2. JavaScript and CSS were minified, reducing formatting and whitespace.
+3. CSS and JavaScript received content-hashed filenames such as
+      `index-DZFEhmtM.js`.
+
+A content hash changes when the file content changes. Browsers and CDNs can
+therefore cache old hashed files for a long time while a new deployment gets a
+new filename, avoiding stale-cache problems. The HTML points to the new asset.
+
+The Vite dev server should not be deployed to users because it is a development
+tool: it serves source modules, performs transformations on demand, includes
+development diagnostics and HMR, and is not optimized or hardened as a
+production static server. A deployment should serve the built `dist/` output
+instead.
 
 ---
 
