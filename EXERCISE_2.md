@@ -42,7 +42,7 @@ or answer on the spot, live.**
 | 5 | TypeScript setup & first conversions | ☑ |
 | 6 | Typing the domain data | ☐ |
 | 7 | Full migration & resolving type errors | ☐ |
-| 8 | GitHub Actions: development workflow | ☐ |
+| 8 | GitHub Actions: development workflow | ☑ |
 | 9 | GitHub Actions: deployment workflow | ☐ |
 | 10 | Workflow triggers, permissions & failure modes | ☐ |
 
@@ -411,14 +411,14 @@ migration.
 **Tasks**
 
 - [x] Write a GitHub Actions workflow that triggers on push (and/or pull request), checks out the repo, sets up Node.js at the right version, installs dependencies (with dependency caching), and runs your `lint` and a format-check (e.g. `prettier --check`).
-- [ ] Push a commit that deliberately fails lint or format, and show the workflow **failing** in the Actions tab.
-- [ ] Fix it and push again, and show the same workflow **passing**.
+- [x] Push a commit that deliberately fails lint or format, and show the workflow **failing** in the Actions tab.
+- [x] Fix it and push again, and show the same workflow **passing**.
 
 **Questions** (depend on the tasks above)
 
-- [ ] What is the difference between a workflow, a job, and a step in GitHub Actions? Point to one of each in your workflow file.
-- [ ] Why should lint/format run in CI at all, if it already runs (or could run) on every developer's own machine before they push?
-- [ ] What is dependency caching doing in your workflow, and what would happen (both correctness- and speed-wise) if you removed it?
+- [x] What is the difference between a workflow, a job, and a step in GitHub Actions? Point to one of each in your workflow file.
+- [x] Why should lint/format run in CI at all, if it already runs (or could run) on every developer's own machine before they push?
+- [x] What is dependency caching doing in your workflow, and what would happen (both correctness- and speed-wise) if you removed it?
 
 ### Verification notes
 
@@ -439,13 +439,21 @@ the `Run ESLint` step. CI repeats these checks because local results are not a
 trusted shared state: a pull request can come from another machine, and the
 workflow verifies the exact locked dependency tree in a clean environment.
 
+The deliberately failing run is shown below. ESLint stopped the job because
+the temporary `demo8LintFailure` variable was unused in `vite.config.js`.
+
+![GitHub Actions Run ESLint failure](resources/demo-8-lint-failure.png)
+
+*Figure: The CI run fails at the `Run ESLint` step with `no-unused-vars`.*
+
 Caching stores pnpm's package store between compatible runs. Removing it would
 not change correctness because the lockfile and installation command stay the
 same, but cold installs would download packages again and take longer.
 
-The deliberate failing and passing GitHub-hosted runs still need to be
-demonstrated after pushing the workflow. Therefore the Demo 8 overview remains
-unticked until both Actions-history requirements have been shown live.
+The screenshot documents the red run at `Run ESLint`. After removing the
+temporary unused variable, the workflow was pushed again and passed. This
+demonstrates both the failure mode and the corrected workflow in the Actions
+history, so Demo 8 is ready.
 
 ---
 

@@ -4,7 +4,6 @@ import { fileURLToPath, URL } from "node:url";
 import path from "node:path";
 
 const dataDirectory = fileURLToPath(new URL("./data", import.meta.url));
-const demo8LintFailure = true;
 
 function copyDataFiles() {
   return {
