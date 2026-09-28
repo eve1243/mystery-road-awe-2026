@@ -1,4 +1,4 @@
-import { state } from "./state.js";
+import { state } from "./state.ts";
 import { renderDashboard } from "./dashboard.js";
 import { renderEvidenceList } from "./evidence.js";
 import { renderPeople, renderLocations } from "./people.js";

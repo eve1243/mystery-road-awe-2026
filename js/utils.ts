@@ -25,10 +25,7 @@ export function evidenceMentionsPerson(
   evidence: Evidence,
   person: Person
 ): boolean {
-  return (
-    evidence.personIds.includes(person.id) ||
-    evidence.personIds.includes(person.name)
-  );
+  return evidence.personIds.includes(person.id);
 }
 
 export function formatDate(timestamp: string): string {

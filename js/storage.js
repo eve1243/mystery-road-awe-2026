@@ -1,5 +1,5 @@
 // js/storage.js
-import { state, STORAGE_KEY_BOOKMARKS, STORAGE_KEY_NOTES } from './state.js';
+import { state, STORAGE_KEY_BOOKMARKS, STORAGE_KEY_NOTES } from './state.ts';
 
 export function saveBookmarksToStorage() {
   localStorage.setItem(STORAGE_KEY_BOOKMARKS, JSON.stringify(state.bookmarks));

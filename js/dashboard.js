@@ -1,4 +1,4 @@
-import {state} from "./state.js";
+import {state} from "./state.ts";
 import {formatDate, getStatusBadgeClass} from "./utils.js";
 
 export function renderDashboard() {

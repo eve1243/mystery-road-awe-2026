@@ -1,4 +1,4 @@
-import {state} from "./state.js";
+import {state} from "./state.ts";
 import { renderDashboard } from "./dashboard.js";
 import { populateTimelineDropdowns } from "./timeline.js";
 import { populateHypothesisDropdowns } from "./workspace.js";

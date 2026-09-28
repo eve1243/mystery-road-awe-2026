@@ -1,12 +1,12 @@
 export interface Evidence {
-  id: string;
+  id: EvidenceId;
   type: string;
   title: string;
   timestamp: string;
   summary: string;
   content: string;
-  personIds: string[];
-  locationIds: string[];
+  personIds: PersonId[];
+  locationIds: LocationId[];
   tags: string[];
   status: string;
   relevance: string;
@@ -14,7 +14,7 @@ export interface Evidence {
 }
 
 export interface Person {
-  id: string;
+  id: PersonId;
   name: string;
   role: string;
   speciality: string;
@@ -25,25 +25,46 @@ export interface Person {
 }
 
 export interface Location {
-  id: string;
+  id: LocationId;
   name: string;
   description: string;
   contains: string[];
 }
 
 export interface TimelineEvent {
-  id: string;
+  id: TimelineEventId;
   time: string;
   title: string;
   description: string;
   type: string;
   certainty: string;
-  personIds: string[];
-  locationIds: string[];
-  evidenceIds: string[];
+  personIds: PersonId[];
+  locationIds: LocationId[];
+  evidenceIds: EvidenceId[];
 }
 
-export type CaseData = Record<string, unknown>;
+export type EvidenceId = `E${string}`;
+export type PersonId =
+  | "signal-scholar"
+  | "kernel-colt"
+  | "nova-byte"
+  | "patch-vector"
+  | "refactor-rex"
+  | "root-harbor";
+export type LocationId = `L${string}`;
+export type TimelineEventId = `T${string}`;
+
+export interface CaseData {
+  caseId: string;
+  title: string;
+  subtitle: string;
+  status: string;
+  opened: string;
+  summary: string;
+  location: string;
+  leadInvestigator: string;
+  notes: string;
+}
 
 export interface AppState {
   allEvidence: Evidence[];
@@ -75,7 +96,17 @@ export const state: AppState = {
   allPeople: [],
   allLocations: [],
   allTimeline: [],
-  caseData: {},
+  caseData: {
+    caseId: "",
+    title: "",
+    subtitle: "",
+    status: "",
+    opened: "",
+    summary: "",
+    location: "",
+    leadInvestigator: "",
+    notes: "",
+  },
   currentPeopleTab: "people",
   loadingStepsRemaining: 2,
   evidenceViewLoading: true,

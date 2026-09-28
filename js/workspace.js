@@ -1,5 +1,5 @@
 // js/workspace.js
-import { state, STORAGE_KEY_HYPOTHESIS } from './state.js';
+import { state, STORAGE_KEY_HYPOTHESIS } from './state.ts';
 import { navigateTo } from './router.js';
 import { openEvidenceDetail } from './evidence.js';
 

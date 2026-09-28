@@ -311,15 +311,50 @@ expects, not what an external file actually contains.
 
 **Tasks**
 
-- [ ] Define TypeScript types/interfaces for the case's data model (evidence, people, locations, timeline events) that match the shape of `data/*.json`.
-- [ ] Convert your data-loading module to use these types instead of untyped `fetch().json()` results.
-- [ ] Pick one field that was genuinely ambiguous or inconsistent in the original JavaScript version (for example: something that could be either an id or a display name, or a date stored in more than one format) and show what modeling it as a proper TypeScript type forced you to decide.
+- [x] Define TypeScript types/interfaces for the case's data model (evidence, people, locations, timeline events) that match the shape of `data/*.json`.
+- [x] Convert your data-loading module to use these types instead of untyped `fetch().json()` results.
+- [x] Pick one field that was genuinely ambiguous or inconsistent in the original JavaScript version (for example: something that could be either an id or a display name, or a date stored in more than one format) and show what modeling it as a proper TypeScript type forced you to decide.
 
 **Questions** (depend on the tasks above)
 
-- [ ] Walk through the ambiguous field you picked: how did the JavaScript version get away without deciding on one shape, and what did TypeScript force you to commit to?
-- [ ] Is there a data-shape problem in this app that TypeScript's static types **can't** catch on their own, because the actual bad data would only show up at runtime from a JSON file, not from your code? What would you need in addition to types to catch that?
-- [ ] What's the difference between an `interface` and a `type` alias for an object shape in TypeScript? Which did you use for your domain models, and does it actually matter here?
+- [x] Walk through the ambiguous field you picked: how did the JavaScript version get away without deciding on one shape, and what did TypeScript force you to commit to?
+- [x] Is there a data-shape problem in this app that TypeScript's static types **can't** catch on their own, because the actual bad data would only show up at runtime from a JSON file, not from your code? What would you need in addition to types to catch that?
+- [x] What's the difference between an `interface` and a `type` alias for an object shape in TypeScript? Which did you use for your domain models, and does it actually matter here?
+
+### Verification notes
+
+The domain models are defined in `js/state.ts`: `CaseData`, `Evidence`, `Person`,
+`Location`, and `TimelineEvent`. The related IDs are modeled separately, so
+`personIds`, `locationIds`, and `evidenceIds` cannot be confused with one
+another. `CaseData` now describes the actual fields in `data/case.json` instead
+of using `Record<string, unknown>`.
+
+`js/api.ts` replaces the untyped loader. `response.json()` is treated as
+`unknown`, then type guards validate the case object and each array item before
+the data is copied into the application state. HTTP failures and invalid data
+shapes are reported as loader errors. `allowJs: true` is deliberate here: the
+remaining UI modules are still JavaScript, but imported TypeScript modules are
+checked during this incremental migration.
+
+The ambiguous field was `personIds` in `evidence.json`. JavaScript accepted both
+IDs and display names because it did not describe the array's element type. E04
+contained `"Nova Byte"`, while all other references used the canonical ID
+`"nova-byte"`; the typed model forced one representation, and the data was
+corrected to use the ID. The old name fallback was removed from the person
+lookup as well.
+
+The E08 timestamp demonstrates a remaining runtime data-quality issue: its date
+is a valid string but refers to 2024 even though the surrounding event is in
+2026. TypeScript cannot inspect external JSON contents at compile time. Runtime
+validation, as added in `api.ts`, is needed for shape checks; domain-specific
+rules such as date consistency would need additional validation logic.
+
+The domain models use `interface` because they describe extensible object
+shapes. The ID families use `type` aliases because template-literal and union
+types express constrained identifiers naturally. For these models the runtime
+result is similar, but the distinction makes the intended use explicit.
+
+`pnpm typecheck` and `pnpm build` both pass after the migration.
 
 ---
 

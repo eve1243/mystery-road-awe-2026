@@ -1,5 +1,5 @@
 // js/main.js
-import { loadAllData } from "../js/api.js";
+import { loadAllData } from "../js/api.ts";
 import { navigateTo, handleHashChange } from "../js/router.js";
 import {
   loadBookmarksFromStorage,

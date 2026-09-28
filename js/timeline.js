@@ -1,5 +1,5 @@
 // js/timeline.js
-import { state } from './state.js';
+import { state } from './state.ts';
 import { navigateTo } from './router.js';
 import { openEvidenceDetail } from './evidence.js';
 import { formatDate, findLocationById, findEvidenceById } from './utils.js';

@@ -1,5 +1,5 @@
 // js/people.js
-import { state } from './state.js';
+import { state } from './state.ts';
 import { navigateTo } from './router.js';
 import { renderEvidenceList } from './evidence.js';
 import { evidenceMentionsPerson } from './utils.js';
