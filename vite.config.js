@@ -22,6 +22,7 @@ function copyDataFiles() {
 }
 
 export default defineConfig({
+  base: process.env.GITHUB_ACTIONS ? "/mystery-road-awe-2026/" : "/",
   plugins: [copyDataFiles()],
   server: {
     port: 5173,

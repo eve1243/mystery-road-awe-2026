@@ -461,15 +461,40 @@ history, so Demo 8 is ready.
 
 **Tasks**
 
-- [ ] Write a second workflow that, on push to your main branch (or another trigger you choose and can justify), checks out the repo, installs dependencies, lints, builds (`vite build`), and deploys the `dist/` output to GitHub Pages (or an equivalent static host).
+- [x] Write a second workflow that, on push to your main branch (or another trigger you choose and can justify), checks out the repo, installs dependencies, lints, builds (`vite build`), and deploys the `dist/` output to GitHub Pages (or an equivalent static host).
 - [ ] Confirm the deployed URL actually serves the working app end-to-end, not just that the workflow reports success.
 - [ ] Make a real change, push it, and show it going live via the workflow without any manual deployment step.
 
 **Questions** (depend on the tasks above)
 
-- [ ] Why does the deploy workflow re-run lint and build itself, instead of trusting "it already passed on my machine" or reusing Demo 8's workflow's result directly?
-- [ ] What is the actual mechanism your deploy workflow uses to publish to GitHub Pages (e.g. a dedicated deploy action publishing an artifact, pushing to a `gh-pages` branch, or something else)? Explain, concretely, what it does.
-- [ ] What would you need to change in this workflow if you were deploying to a different static host instead (e.g. Netlify, Vercel, a plain server over SFTP)? What would stay the same?
+- [x] Why does the deploy workflow re-run lint and build itself, instead of trusting "it already passed on my machine" or reusing Demo 8's workflow's result directly?
+- [x] What is the actual mechanism your deploy workflow uses to publish to GitHub Pages (e.g. a dedicated deploy action publishing an artifact, pushing to a `gh-pages` branch, or something else)? Explain, concretely, what it does.
+- [x] What would you need to change in this workflow if you were deploying to a different static host instead (e.g. Netlify, Vercel, a plain server over SFTP)? What would stay the same?
+
+### Verification notes
+
+The deployment workflow is defined in `.github/workflows/deploy.yml`. It runs
+on pushes to `main` and can also be started with `workflow_dispatch`. The
+`build` job installs the locked dependencies, runs ESLint, runs `pnpm build`,
+and uploads `dist/` with `actions/upload-pages-artifact@v3`. The `deploy` job
+waits for `build` and publishes that artifact with
+`actions/deploy-pages@v4`.
+
+The workflow grants only `contents: read`, `pages: write`, and `id-token: write`.
+The repository's GitHub Pages source must be configured as **GitHub Actions**;
+the deployment environment is named `github-pages`. The Vite config uses the
+repository base path `/mystery-road-awe-2026/` only in Actions builds, so local
+development continues to use `/`.
+
+The deploy workflow repeats lint and build in its own clean job because a
+deployment must validate the exact commit and dependency lockfile it publishes;
+it cannot rely on another machine's local result or on a separate workflow run.
+For another static host, the checkout, dependency installation, lint, build,
+and artifact preparation would stay the same; only the upload/deploy action,
+credentials, and host-specific configuration would change.
+
+The actual Pages URL and a real change going live still need to be demonstrated
+after pushing and enabling GitHub Actions as the Pages source.
 
 ---
 
