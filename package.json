@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write src/main.js js/*.ts vite.config.js package.json tsconfig.json",
+    "format": "prettier --write src/main.ts js/*.ts vite.config.js package.json tsconfig.json",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [

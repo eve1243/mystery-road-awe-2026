@@ -362,15 +362,47 @@ result is similar, but the distinction makes the intended use explicit.
 
 **Tasks**
 
-- [ ] Convert the remaining `.js` modules to `.ts`, and get the **entire app** compiling with zero TypeScript errors under the strictness settings from Demo 5.
-- [ ] Find at least 3 real spots where the compiler flagged something you had to actually think about (a union type, a possibly-`undefined` value, an implicit `any`, etc.). For each, decide and record whether it pointed at a real latent bug or was "just" the compiler being pedantic.
-- [ ] Confirm the app still behaves identically to the working JavaScript version — a type-safe app that behaves differently is not a successful migration.
+- [x] Convert the remaining `.js` modules to `.ts`, and get the **entire app** compiling with zero TypeScript errors under the strictness settings from Demo 5.
+- [x] Find at least 3 real spots where the compiler flagged something you had to actually think about (a union type, a possibly-`undefined` value, an implicit `any`, etc.). For each, decide and record whether it pointed at a real latent bug or was "just" the compiler being pedantic.
+- [x] Confirm the app still behaves identically to the working JavaScript version — a type-safe app that behaves differently is not a successful migration.
 
 **Questions** (depend on the tasks above)
 
-- [ ] Show one specific type error you had to actually think about (not just silence with `any` or the `!` non-null assertion). What did it tell you about your code that plain JS review or testing hadn't?
-- [ ] When (if ever) is reaching for `any` the right call during a migration like this, versus a sign you should model the type properly? Where did you draw that line?
-- [ ] Did the migration reveal anything that was a genuine, previously-unnoticed bug (as opposed to just noise)? If yes, explain it. If no, explain how you're confident it was only noise.
+- [x] Show one specific type error you had to actually think about (not just silence with `any` or the `!` non-null assertion). What did it tell you about your code that plain JS review or testing hadn't?
+- [x] When (if ever) is reaching for `any` the right call during a migration like this, versus a sign you should model the type properly? Where did you draw that line?
+- [x] Did the migration reveal anything that was a genuine, previously-unnoticed bug (as opposed to just noise)? If yes, explain it. If no, explain how you're confident it was only noise.
+
+### Verification notes
+
+All application modules are now TypeScript: `js/api.ts`, `state.ts`,
+`utils.ts`, `dashboard.ts`, `evidence.ts`, `people.ts`, `router.ts`,
+`storage.ts`, `timeline.ts`, `workspace.ts`, and `src/main.ts`. The HTML entry
+point now loads `src/main.ts`; the old JavaScript copies were removed so Vite
+cannot accidentally bundle a stale implementation.
+
+Three compiler findings required decisions:
+
+1. Timeline filter values come from HTML selects as plain `string`, while the
+      domain arrays contain `PersonId` and `LocationId`. I kept the domain types
+      strict and compared the external filter strings with `.some()` instead of
+      widening the model. This was a boundary typing issue, not a runtime bug.
+2. `JSON.parse()` in LocalStorage returns `unknown`. The storage module now
+      validates bookmark arrays, note records, and hypothesis drafts before using
+      them. This exposed a real resilience gap: malformed saved data could
+      previously enter application state unchecked.
+3. Delegated DOM events expose `EventTarget`, which has no guaranteed `value`,
+      `dataset`, or `closest` property. The migrated handlers narrow targets to
+      `HTMLElement`/form element types before reading them. This prevents a real
+      runtime crash when an event originates on a child node or a non-element.
+
+`any` was not needed. It would be reasonable only at a deliberately isolated
+third-party or legacy boundary with a follow-up model; here each boundary was
+small enough to type or validate properly. The production build and preview
+smoke test still succeed, and the dashboard/evidence/timeline/workspace code
+uses the same state and rendering flow as before.
+
+`pnpm typecheck`, `pnpm build`, and the preview smoke test pass after the full
+migration.
 
 ---
 
