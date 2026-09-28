@@ -410,7 +410,7 @@ migration.
 
 **Tasks**
 
-- [ ] Write a GitHub Actions workflow that triggers on push (and/or pull request), checks out the repo, sets up Node.js at the right version, installs dependencies (with dependency caching), and runs your `lint` and a format-check (e.g. `prettier --check`).
+- [x] Write a GitHub Actions workflow that triggers on push (and/or pull request), checks out the repo, sets up Node.js at the right version, installs dependencies (with dependency caching), and runs your `lint` and a format-check (e.g. `prettier --check`).
 - [ ] Push a commit that deliberately fails lint or format, and show the workflow **failing** in the Actions tab.
 - [ ] Fix it and push again, and show the same workflow **passing**.
 
@@ -419,6 +419,33 @@ migration.
 - [ ] What is the difference between a workflow, a job, and a step in GitHub Actions? Point to one of each in your workflow file.
 - [ ] Why should lint/format run in CI at all, if it already runs (or could run) on every developer's own machine before they push?
 - [ ] What is dependency caching doing in your workflow, and what would happen (both correctness- and speed-wise) if you removed it?
+
+### Verification notes
+
+The workflow is defined in `.github/workflows/ci.yml`. It runs for pushes to
+`main`/`master` and for pull requests. The `validate` job runs on
+`ubuntu-latest`, checks out the repository, installs pnpm 12.4.1 and Node.js
+22, and enables pnpm dependency caching through `actions/setup-node`.
+
+Dependencies are installed with `pnpm install --frozen-lockfile`, so CI cannot
+silently rewrite or ignore `pnpm-lock.yaml`. The job then runs `pnpm lint`, a
+Prettier `--check` over the configured source/config files, and
+`pnpm typecheck`. All three commands pass locally, as does the frozen-lockfile
+installation.
+
+The workflow is the complete automation definition. The `validate` entry under
+`jobs` is the job, and each item under its `steps` list is a step, for example
+the `Run ESLint` step. CI repeats these checks because local results are not a
+trusted shared state: a pull request can come from another machine, and the
+workflow verifies the exact locked dependency tree in a clean environment.
+
+Caching stores pnpm's package store between compatible runs. Removing it would
+not change correctness because the lockfile and installation command stay the
+same, but cold installs would download packages again and take longer.
+
+The deliberate failing and passing GitHub-hosted runs still need to be
+demonstrated after pushing the workflow. Therefore the Demo 8 overview remains
+unticked until both Actions-history requirements have been shown live.
 
 ---
 
