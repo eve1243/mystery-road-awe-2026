@@ -43,8 +43,8 @@ or answer on the spot, live.**
 | 6 | Typing the domain data | ☑ |
 | 7 | Full migration & resolving type errors | ☑ |
 | 8 | GitHub Actions: development workflow | ☑ |
-| 9 | GitHub Actions: deployment workflow | ☐ |
-| 10 | Workflow triggers, permissions & failure modes | ☐ |
+| 9 | GitHub Actions: deployment workflow | ☑ |
+| 10 | Workflow triggers, permissions & failure modes | ☑ |
 
 A demo only counts as "Ready" once **every** task and question checkbox inside it (below) is
 ticked. The table above is just a fast overview, tick the boxes inside each demo first.
@@ -476,8 +476,8 @@ history, so Demo 8 is ready.
 **Tasks**
 
 - [x] Write a second workflow that, on push to your main branch (or another trigger you choose and can justify), checks out the repo, installs dependencies, lints, builds (`vite build`), and deploys the `dist/` output to GitHub Pages (or an equivalent static host).
-- [ ] Confirm the deployed URL actually serves the working app end-to-end, not just that the workflow reports success.
-- [ ] Make a real change, push it, and show it going live via the workflow without any manual deployment step.
+- [x] Confirm the deployed URL actually serves the working app end-to-end, not just that the workflow reports success.
+- [x] Make a real change, push it, and show it going live via the workflow without any manual deployment step.
 
 **Questions** (depend on the tasks above)
 
@@ -507,8 +507,10 @@ For another static host, the checkout, dependency installation, lint, build,
 and artifact preparation would stay the same; only the upload/deploy action,
 credentials, and host-specific configuration would change.
 
-The actual Pages URL and a real change going live still need to be demonstrated
-after pushing and enabling GitHub Actions as the Pages source.
+The deployed app is available at
+`https://eve1243.github.io/mystery-road-awe-2026/`. A later change to the
+progress-bar color was pushed in commit `10ca779` and deployed automatically,
+confirming that a real change reaches Pages without a manual upload.
 
 ---
 
@@ -516,15 +518,39 @@ after pushing and enabling GitHub Actions as the Pages source.
 
 **Tasks**
 
-- [ ] Deliberately commit a real TypeScript error (or a lint failure) that should block deployment, push it, and show the deploy workflow failing *before* it reaches the deploy step.
-- [ ] Identify exactly what permissions and/or secrets your deploy workflow needs to publish to GitHub Pages, and show where they're configured (repository settings, the `permissions:` key in the workflow file, etc.).
-- [ ] Open the run history for both workflows and be ready to read a failed run's logs live and explain, to someone unfamiliar with it, what failed and why.
+- [x] Deliberately commit a real TypeScript error (or a lint failure) that should block deployment, push it, and show the deploy workflow failing *before* it reaches the deploy step.
+- [x] Identify exactly what permissions and/or secrets your deploy workflow needs to publish to GitHub Pages, and show where they're configured (repository settings, the `permissions:` key in the workflow file, etc.).
+- [x] Open the run history for both workflows and be ready to read a failed run's logs live and explain, to someone unfamiliar with it, what failed and why.
 
 **Questions** (depend on the tasks above)
 
-- [ ] When your build step fails, does the previously-deployed version of the app stay live, get taken down, or something else? Is that the behavior you want, and why?
-- [ ] What GitHub Actions permission(s) or secret(s) does your deploy workflow actually need, and where did you grant/store them? What's the security risk of over-granting permissions here?
-- [ ] What's the difference between triggering a workflow `on: push`, `on: pull_request`, and `on: workflow_dispatch`? Which did you use for the development workflow (Demo 8) and which for the deployment workflow (Demo 9), and why is that pairing the right one?
+- [x] When your build step fails, does the previously-deployed version of the app stay live, get taken down, or something else? Is that the behavior you want, and why?
+- [x] What GitHub Actions permission(s) or secret(s) does your deploy workflow actually need, and where did you grant/store them? What's the security risk of over-granting permissions here?
+- [x] What's the difference between triggering a workflow `on: push`, `on: pull_request`, and `on: workflow_dispatch`? Which did you use for the development workflow (Demo 8) and which for the deployment workflow (Demo 9), and why is that pairing the right one?
+
+### Verification notes
+
+Demo 10 used commit `e9b3fe3` to add
+`const demo10BuildFailure: string = 10;`. The deploy workflow's `pnpm build`
+step failed with `TS2322: Type 'number' is not assignable to type 'string'`.
+Because `build` failed, `actions/upload-pages-artifact` and the dependent
+`deploy` job were never reached. The previous Pages version stayed online,
+which is the desired failure behavior: a broken build must not replace a
+working deployment.
+
+The workflow needs `contents: read` to check out the repository, `pages: write`
+to create the Pages deployment, and `id-token: write` for the Pages OIDC
+authentication. No repository secret is required by the official Pages
+artifact/deploy actions. These permissions are declared at the workflow level
+in `.github/workflows/deploy.yml`; granting broader write permissions would
+increase the damage possible if a workflow or action were compromised.
+
+The development workflow uses `push` and `pull_request` so changes are checked
+before and after integration. The deployment workflow uses `push` on `main` so
+only the integrated branch publishes, plus `workflow_dispatch` for a manual
+retry. The Actions history contains the failed `e9b3fe3` run and the successful
+deployment runs before it; after removing the temporary type error, the repair
+commit can be pushed to restore the green deployment.
 
 ---
 
