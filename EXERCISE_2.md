@@ -35,13 +35,13 @@ or answer on the spot, live.**
 
 | # | Demo | Ready? |
 |---|---|---|
-| 1 | Initialize the package manager & project metadata | ☐ |
+| 1 | Initialize the package manager & project metadata | ☑ |
 | 2 | Integrate Vite as the dev server | ☐ |
 | 3 | Production build & preview | ☐ |
 | 4 | `package.json` scripts: lint & format | ☑ |
 | 5 | TypeScript setup & first conversions | ☑ |
-| 6 | Typing the domain data | ☐ |
-| 7 | Full migration & resolving type errors | ☐ |
+| 6 | Typing the domain data | ☑ |
+| 7 | Full migration & resolving type errors | ☑ |
 | 8 | GitHub Actions: development workflow | ☑ |
 | 9 | GitHub Actions: deployment workflow | ☐ |
 | 10 | Workflow triggers, permissions & failure modes | ☐ |
@@ -55,32 +55,46 @@ ticked. The table above is just a fast overview, tick the boxes inside each demo
 
 **Tasks**
 
-- [ ] Choose **npm** or **pnpm** and record why you picked it over the other.
-      choose pnpm because it saves depencansys diffrently as they are not 
-- [ ] Initialize `package.json` for the project (name, version, description, etc. filled in properly).
-      when I downloaded pnpm it automaticly created a package.json
-- [ ] Add a `.gitignore` entry for `node_modules` (and any other tool output you generate in later demos, e.g. `dist/`).
-- [ ] Install one real dependency (you'll add more in later demos) and show the resulting lockfile (`package-lock.json` or `pnpm-lock.yaml`) committed to the repo.
-      I installed vite, that was automaticly added to the package.json
+- [x] Choose **npm** or **pnpm** and record why you picked it over the other.
+      I chose pnpm because its content-addressable store and linked node_modules
+      layout share packages efficiently between projects and reduce install time.
+- [x] Initialize `package.json` for the project (name, version, description, etc. filled in properly).
+      `package.json` contains the project name, version, description, module type,
+      package manager version, and working development scripts.
+- [x] Add a `.gitignore` entry for `node_modules` (and any other tool output you generate in later demos, e.g. `dist/`).
+- [x] Install one real dependency (you'll add more in later demos) and show the resulting lockfile (`package-lock.json` or `pnpm-lock.yaml`) committed to the repo.
+      Vite and the development tools are listed in `devDependencies`, and the
+      committed `pnpm-lock.yaml` records their exact dependency tree.
 
 **Questions** (depend on the tasks above)
 
-- [ ] What problem does a package manager actually solve that "download the library and put it in a folder yourself" doesn't? Be specific.
-      Es lädt automatisch alle abhängigkeiten/bibiliotheken mit herunter. Wenns neue versionen gibt, muss man diese nicht manuel aktualisieren.
-- [ ] What's the difference between `dependencies` and `devDependencies` in `package.json`? Which
+- [x] What problem does a package manager actually solve that "download the library and put it in a folder yourself" doesn't? Be specific.
+      It resolves and installs direct and transitive dependencies, records their
+      versions, and provides repeatable install and update commands.
+- [x] What's the difference between `dependencies` and `devDependencies` in `package.json`? Which
       category will Vite, your linter/formatter, and TypeScript belong to, and why?
       
-      dependencies: Code zur Laufzeit beim Endnutzer (z. B. React).
-      devDependencies: Tools nur für Entwicklung und Build (Vite, Linter, TypeScript).
-      Vite, Linter, TypeScript: Gehören in devDependencies, da sie den Code nur bauen/prüfen und nicht im Browser ausgeführt werden.
-- [ ] What is a lockfile for, and what could go wrong for your teammates (or CI) if it weren't
+      `dependencies` are needed at runtime by the deployed application.
+      `devDependencies` are tools used only during development, checking, and
+      building. Vite, ESLint, Prettier, and TypeScript belong in devDependencies.
+- [x] What is a lockfile for, and what could go wrong for your teammates (or CI) if it weren't
       committed to the repo?
-      Friert den exakten Abhängigkeitsbaum inklusive aller Unterabhängigkeiten ein.
-      Teammitglieder oder CI installieren abweichende Unter-Versionen – es entstehen unvorhersehbare Bugs („Works on my machine“).
+      A lockfile freezes the exact dependency tree, including transitive
+      dependencies. Without it, teammates and CI could install different
+      versions and produce inconsistent bugs.
 
-- [ ] If you chose pnpm: what does it do differently from npm regarding how `node_modules` is laid out and how disk space/install time is shared across projects? If you chose npm: what would you gain or lose by switching to pnpm on a larger project?
-      Globale Ablage auf der Festplatte via Symlinks/Hard Links; spart Speicherplatz und beschleunigt Installationen massiv.
-      Verhindert „Phantom Dependencies“ durch eine strikte Symlink-Struktur in node_modules. Code auf ein NPM-Paket zugreifen und dieses importieren kann, obwohl es nicht in deiner package.json als Abhängigkeit eingetragen ist
+- [x] If you chose pnpm: what does it do differently from npm regarding how `node_modules` is laid out and how disk space/install time is shared across projects? If you chose npm: what would you gain or lose by switching to pnpm on a larger project?
+      pnpm keeps packages in a shared content-addressable store and links them
+      into each project's node_modules. This saves disk space and speeds up
+      repeated installs; its stricter layout also reduces accidental phantom
+      dependencies.
+
+### Verification notes
+
+Demo 1 is complete: `.gitignore` contains `node_modules/` and `dist/`,
+`package.json` identifies the project and its pnpm package manager, the project
+dependencies are installed, and `pnpm-lock.yaml` is tracked. The reproducible
+installation `pnpm install --frozen-lockfile` completes successfully.
 
 ---
 

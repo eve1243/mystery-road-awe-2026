@@ -1,5 +1,7 @@
 import { Evidence, Location, Person, state } from "./state.js";
 
+const demo10BuildFailure: string = 10;
+
 export const findEvidenceById = (id: string): Evidence | null => {
   for (const evidence of state.allEvidence) {
     if (evidence.id === id) return evidence;
