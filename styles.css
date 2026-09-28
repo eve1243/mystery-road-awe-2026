@@ -230,7 +230,7 @@ a:focus-visible {
 }
 
 .progress-bar-inner {
-  background: var(--color-accent);
+  background: var(--color-critical);
   height: 100%;
 }
 
