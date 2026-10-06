@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import { fileURLToPath, URL } from "node:url";
 import path from "node:path";
@@ -23,7 +24,7 @@ function copyDataFiles() {
 
 export default defineConfig({
   base: process.env.GITHUB_ACTIONS ? "/mystery-road-awe-2026/" : "/",
-  plugins: [copyDataFiles()],
+  plugins: [react(), copyDataFiles()],
   server: {
     port: 5173,
     open: true,

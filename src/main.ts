@@ -18,6 +18,8 @@ import { switchPeopleTab } from "../js/people.js";
 import { renderTimeline } from "../js/timeline.js";
 import { saveHypothesis } from "../js/workspace.js";
 
+const isReactPreview = new URLSearchParams(window.location.search).has("react");
+
 function setupEventListeners(): void {
   window.addEventListener("hashchange", handleHashChange);
 
@@ -95,6 +97,15 @@ function setupEventListeners(): void {
 }
 
 function initApp(): void {
+  if (isReactPreview) {
+    document.querySelector(".app-header")?.classList.add("hidden");
+    document.getElementById("app")?.classList.add("hidden");
+    document.querySelector(".app-footer")?.classList.add("hidden");
+    document.getElementById("react-migration-root")?.classList.remove("hidden");
+    void import("./react-main.js");
+    return;
+  }
+
   loadBookmarksFromStorage();
   loadNotesFromStorage();
   setupEventListeners();

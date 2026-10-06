@@ -28,10 +28,10 @@ These checkboxes are for self-checking. Don't forget to do the actual checking o
 | 3 | The virtual DOM | ☑ |
 | 4 | SPA vs. MPA: state & routing | ☑ |
 | 5 | React introduction | ☐ |
-| 6 | React + TypeScript entry point in the Vite project | ☐ |
+| 6 | React + TypeScript entry point in the Vite project | ☑ |
 | 7 | Component hierarchy for the whole app | ☐ |
-| 8 | Architecture Decision Record: why SPA/React | ☐ |
-| 9 | Migrate the application shell | ☐ |
+| 8 | Architecture Decision Record: why SPA/React | ☑ |
+| 9 | Migrate the application shell | ☑ |
 | 10 | Migrate the Dashboard view | ☐ |
 
 A demo only counts as "Ready" once **every** task and question checkbox inside it (below) is
@@ -117,16 +117,16 @@ component's function body had a side effect (e.g. mutated a global variable) eve
 
 **Tasks**
 
-- [ ] Add React and TypeScript support to the existing Vite project from Exercise 2 (the right Vite plugin, `tsx` support, React types).
-- [ ] Create a minimal entry point (e.g. a root `<App />` component mounted into the page) that
+- [x] Add React and TypeScript support to the existing Vite project from Exercise 2 (the right Vite plugin, `tsx` support, React types).
+- [x] Create a minimal entry point (e.g. a root `<App />` component mounted into the page) that
 renders *something* visible, without removing the working vanilla app yet.
-- [ ] Decide and document how the two versions coexist during the migration (e.g. a separate route/ flag to view the React version, or a full swap-over. Your call, but be ready to justify it).
+- [x] Decide and document how the two versions coexist during the migration (e.g. a separate route/ flag to view the React version, or a full swap-over. Your call, but be ready to justify it).
 
 **Questions** (depend on the tasks above)
 
-- [ ] What did you actually have to install and configure to get JSX compiling through Vite? What is each piece responsible for?
-- [ ] How does your `<App />` component get from source code onto the actual page? Trace the path from your `.tsx` file to the DOM.
-- [ ] What decision did you make about how the vanilla and React versions coexist during migration, and why? What would go wrong with an opposite choice?
+- [x] What did you actually have to install and configure to get JSX compiling through Vite? What is each piece responsible for?
+- [x] How does your `<App />` component get from source code onto the actual page? Trace the path from your `.tsx` file to the DOM.
+- [x] What decision did you make about how the vanilla and React versions coexist during migration, and why? What would go wrong with an opposite choice?
 
 ---
 
@@ -149,13 +149,13 @@ renders *something* visible, without removing the working vanilla app yet.
 
 **Tasks**
 
-- [ ] Argue whether an SPA built with React is actually the right architecture for *this specific app*, given what it does.
-- [ ] Include honest trade-offs or downsides of the SPA/React choice for this app, not just the benefits.
+- [x] Argue whether an SPA built with React is actually the right architecture for *this specific app*, given what it does.
+- [x] Include honest trade-offs or downsides of the SPA/React choice for this app, not just the benefits.
 
 **Questions** (depend on the tasks above)
 
-- [ ] What would you lose by keeping this app as server-rendered vanilla HTML/JS instead? What would you lose by choosing React specifically over a *different* SPA approach (e.g. vanilla JS with a router, or a lighter library)?
-- [ ] If this app needed to support users on very low-end devices or poor connections as a hard requirement, would you stick with SPA or change the architecture? Why or why not?
+- [x] What would you lose by keeping this app as server-rendered vanilla HTML/JS instead? What would you lose by choosing React specifically over a *different* SPA approach (e.g. vanilla JS with a router, or a lighter library)?
+- [x] If this app needed to support users on very low-end devices or poor connections as a hard requirement, would you stick with SPA or change the architecture? Why or why not?
 
 ---
 
@@ -163,14 +163,14 @@ renders *something* visible, without removing the working vanilla app yet.
 
 **Tasks**
 
-- [ ] Build the header/branding, the navigation bar, and a routing skeleton (even a minimal one, a full router library is not required yet) in React + TypeScript.
-- [ ] Wire it up so navigating between (stub) pages actually changes what's rendered, mirroring the current five views even though only the Dashboard will have real content this exercise.
+- [x] Build the header/branding, the navigation bar, and a routing skeleton (even a minimal one, a full router library is not required yet) in React + TypeScript.
+- [x] Wire it up so navigating between (stub) pages actually changes what's rendered, mirroring the current five views even though only the Dashboard will have real content this exercise.
 
 **Questions** (depend on the tasks above)
 
-- [ ] How does "the current view" get tracked in your React shell? Compare this directly to how `currentPage` and `handleHashChange()` did it in the vanilla version? What's actually
+- [x] How does "the current view" get tracked in your React shell? Compare this directly to how `currentPage` and `handleHashChange()` did it in the vanilla version? What's actually
 different, and what's superficially different but conceptually the same?
-- [ ] What happens in your shell if a user navigates to a view that doesn't exist? How does that compare to the vanilla app's fallback-to-dashboard behavior?
+- [x] What happens in your shell if a user navigates to a view that doesn't exist? How does that compare to the vanilla app's fallback-to-dashboard behavior?
 
 ---
 

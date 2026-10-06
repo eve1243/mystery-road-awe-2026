@@ -194,3 +194,78 @@ Evidence-Container mit `innerHTML` neu.
 * **Was passiert beim Klick auf den Browser-Zurück-Button?**
   * Der Browser wechselt den Hash in der Adresszeile auf den vorherigen Eintrag aus der History.
   * Das triggert wieder das `hashchange`-Event und unsere Funktion `handleHashChange()` schaltet die CSS-Klasse auf die vorherige Ansicht um. Es gibt auch hier keinen Neuladen der Seite.
+
+---
+
+## Demo 6 - React + TypeScript entry point in the Vite project
+
+### Antworten auf die Fragen
+
+* **Was wurde installiert und konfiguriert?** `react` und `react-dom` liefern React und
+  das Rendern in den DOM. `@vitejs/plugin-react` aktiviert JSX/TSX in Vite. `@types/react`
+  und `@types/react-dom` liefern die TypeScript-Typen. In `vite.config.js` ist das React-
+  Plugin ergänzt und in `tsconfig.json` ist `jsx: "react-jsx"` aktiviert.
+* **Wie kommt `<App />` in den DOM?** `src/main.ts` erkennt den Query-Flag `?react=1`,
+  lädt dynamisch `src/react-main.tsx` und blendet den Vanilla-Root aus. Dort wird
+  `ReactMigrationApp` importiert und mit `createRoot(rootElement).render(<ReactMigrationApp />)`
+  in `#react-migration-root` gerendert.
+* **Wie koexistieren Vanilla und React?** Die Vanilla-App bleibt die Standardansicht.
+  Die React-Ansicht ist über `?react=1` erreichbar. Dadurch kann die Migration getestet
+  werden, ohne die bestehenden fünf Vanilla-Views zu entfernen.
+
+### Aktueller Projektstand
+
+Demo 6 ist umgesetzt. Die Vanilla-App läuft weiterhin normal mit `pnpm dev`; die React-
+Preview ist über `http://localhost:5173/?react=1` erreichbar, beziehungsweise über den
+Port, den Vite beim Start ausgibt.
+
+---
+
+## Demo 8 - Architecture Decision Record: why SPA/React
+
+### Entscheidung
+
+Für diese Untersuchung-App ist eine SPA mit React grundsätzlich passend. Evidence, People,
+Timeline und Workspace werden häufig durchsucht, gefiltert und miteinander verknüpft.
+Clientseitige Navigation und wiederverwendbare Komponenten machen diese Interaktionen
+übersichtlicher.
+
+### Trade-offs
+
+React erhöht die Bundle-Größe und die App ist beim ersten Laden von JavaScript abhängig.
+Ohne JavaScript gibt es keine funktionsfähige Untersuchung. Außerdem bringt React zusätzliche
+Abhängigkeiten, Build-Konfiguration und Regeln für State und Rendering mit. Die bestehende
+Vanilla-App ist für diese kleine Datenmenge zunächst einfacher und leichter.
+
+### Antworten auf die Fragen
+
+* **Was würde bei Vanilla verloren gehen?** Server-rendered Vanilla wäre am Anfang ohne
+  JavaScript schneller sichtbar und hätte weniger Abhängigkeiten. Dafür wären Navigation,
+  Filter, gemeinsamer State und wiederverwendbare UI-Teile schwieriger zu strukturieren.
+  Gegenüber einer leichteren SPA-Lösung kostet React zusätzlich Bundle-Größe und Laufzeit,
+  bietet aber ein etabliertes Komponentenmodell und ein großes Ökosystem.
+* **Was wäre bei Low-End-Geräten oder schlechter Verbindung besser?** Wenn diese Bedingung
+  besonders wichtig wäre, würde ich keine reine React-SPA wählen. Eine serverseitig gerenderte
+  oder hybride Lösung mit weniger JavaScript und selektiver Interaktivität wäre dann besser.
+  Für die aktuelle lokale Investigation-App überwiegen jedoch die Vorteile der SPA-Struktur.
+
+  ---
+
+  ## Demo 9 - Migrate the application shell
+
+  ### Umsetzung
+
+  Die React-Shell liegt in `src/ReactMigrationApp.tsx`. Sie enthält das Branding, die
+  Navigation und fünf Seiten-Stubs für Dashboard, Evidence, People & Locations, Timeline und
+  Workspace. Sie wird über `http://localhost:5173/?react=1` beziehungsweise den aktiven
+  Vite-Port geöffnet.
+
+  ### Antworten auf die Fragen
+
+  * **Wie wird die aktuelle View verfolgt?** React speichert sie in `currentView` mit
+    `useState`. Die URL bleibt wie in der Vanilla-Version hash-basiert. Ein `hashchange`-
+    Listener aktualisiert den State. Der Unterschied ist, dass React daraus die Navigation
+    und den Seiteninhalt rendert; das Grundprinzip, eine aktuelle Route zu speichern, ist gleich.
+  * **Was passiert bei einer unbekannten View?** `getViewFromHash()` prüft den Hash gegen die
+    fünf gültigen Views. Bei einem unbekannten Wert wird `dashboard` verwendet. Das entspricht
+    dem Fallback in `js/router.ts`.
